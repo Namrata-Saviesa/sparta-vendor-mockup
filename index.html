@@ -2032,6 +2032,40 @@ function openReport(key){
 function closeReport(){document.getElementById('reportmodal').classList.remove('on');}
 document.getElementById('reportmodal').addEventListener('click',e=>{if(e.target.id==='reportmodal')closeReport();});
 
+reportData.workerEff={
+  title:'Worker efficiency report',
+  note:'Worker efficiency = standard minutes earned from completed scans divided by attendance minutes. Rework scans earn 0.',
+  body:'<table><thead><tr><th>Worker</th><th>Station</th><th>Earned min</th><th>Attend min</th><th>Eff %</th><th>Rework %</th></tr></thead><tbody>'
+    +'<tr class="row r-ok"><td class="mono">W-102</td><td>Beam Saw</td><td class="mono">2,470</td><td class="mono">2,640</td><td class="mono" style="color:var(--ok);font-weight:700">94%</td><td class="mono">0.8%</td></tr>'
+    +'<tr class="row r-ok"><td class="mono">W-114</td><td>Edge Band</td><td class="mono">2,320</td><td class="mono">2,640</td><td class="mono" style="color:var(--ok);font-weight:700">88%</td><td class="mono">1.2%</td></tr>'
+    +'<tr class="row r-watch"><td class="mono">W-131</td><td>Router</td><td class="mono">1,930</td><td class="mono">2,640</td><td class="mono" style="color:#9a6b00;font-weight:700">73%</td><td class="mono">2.9%</td></tr>'
+    +'<tr class="row r-late"><td class="mono">W-140</td><td>CNC</td><td class="mono">1,540</td><td class="mono">2,640</td><td class="mono" style="color:var(--late);font-weight:700">58%</td><td class="mono">4.1%</td></tr>'
+    +'</tbody></table>'
+};
+reportData.supervisorEff={
+  title:'Supervisor efficiency report (weighted)',
+  note:'Weighted average across all stations supervised. Each station is weighted by standard-hours volume.',
+  body:'<div class="note" style="margin-bottom:8px"><b>Formula:</b> <span class="mono">Sup Eff = sum(station eff x station std-hrs) / sum(station std-hrs)</span></div>'
+    +'<table><thead><tr><th>Supervisor S-07 stations</th><th>Std hrs (wt)</th><th>Station eff</th><th>Contribution</th></tr></thead><tbody>'
+    +'<tr><td>Beam Saw</td><td class="mono">41.2</td><td class="mono">94%</td><td class="mono">38.7</td></tr>'
+    +'<tr><td>Edge Band 1+2</td><td class="mono">88.0</td><td class="mono">88%</td><td class="mono">77.4</td></tr>'
+    +'<tr><td>Panel Saw</td><td class="mono">30.5</td><td class="mono">81%</td><td class="mono">24.7</td></tr>'
+    +'<tr style="border-top:2px solid var(--line)"><td><b>Weighted efficiency</b></td><td class="mono"><b>159.7</b></td><td></td><td class="mono" style="color:var(--ok)"><b>140.8 / 159.7 = 88.2%</b></td></tr>'
+    +'</tbody></table><div class="note" style="margin-top:8px">Edge Band dominates the weighting, so S-07 score is driven by the station carrying the most standard-hours.</div>'
+};
+function wireReportRow(label,key){
+  const title=[...document.querySelectorAll('#s-rep .repcard b')].find(b=>b.textContent.trim()===label);
+  if(!title)return;
+  const row=title.closest('.repcard');
+  const btn=row.querySelector('button');
+  row.classList.add('clickable');
+  row.onclick=()=>openReport(key);
+  if(btn){btn.textContent='View';btn.onclick=e=>{e.stopPropagation();openReport(key);};}
+}
+wireReportRow('Worker efficiency report','workerEff');
+wireReportRow('Supervisor efficiency report (weighted)','supervisorEff');
+[...document.querySelectorAll('#s-rep .card h3')].forEach(h=>{if(h.textContent.trim().startsWith('Efficiency logic'))h.closest('.card').style.display='none';});
+
 // ---- Masters & Config: expanded "Open" views ----
 const masterData={
   calendar:{title:'Working & Holiday Calendar', note:'Shift pattern and the holiday list every date-calculation in the app respects — Sparta ECDs, machine-day plans and CPM all skip these dates.',
