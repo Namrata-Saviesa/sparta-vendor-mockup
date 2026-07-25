@@ -298,7 +298,7 @@ body.locked .gate{display:flex}
         <option value="production-avan">Production - Avan</option>
         <option value="supervisor-generic">Supervisor - Generic</option>
         <option value="operator-generic">Operator - Generic</option>
-        <option value="dispatch-mangesh">Dispatch - Mangesh</option>
+        <option value="dispatch-ganesh">Dispatch - Ganesh</option>
       </select>
       <div class="hint" id="role-hint">Full access: all screens and all orders.</div>
     </div>
@@ -1387,7 +1387,7 @@ const roleProfiles={
   'production-avan':{name:'Avan',label:'Production',designer:null,channel:null,pages:['oroute','order','load','scan','pack','rep'],hint:'Production access: route/load/floor execution screens and production reports.'},
   'supervisor-generic':{name:'Generic Supervisor',label:'Supervisor',designer:null,channel:null,pages:['oroute','order','load','scan','pack'],hint:'Supervisor access: own station work, load, scan and order context.'},
   'operator-generic':{name:'Generic Operator',label:'Operator',designer:null,channel:null,pages:['scan','pack'],hint:'Operator access: station scan or packing station only.'},
-  'dispatch-mangesh':{name:'Mangesh',label:'Dispatch / Logistics',designer:null,channel:null,pages:['pack','order','rep'],hint:'Dispatch access: packing station, order detail and dispatch-linked reports.'}
+  'dispatch-ganesh':{name:'Ganesh',label:'Dispatch / Logistics',designer:null,channel:null,pages:['pack','order','rep'],hint:'Dispatch access: packing station, order detail and dispatch-linked reports.'}
 };
 let currentRole='admin-namrata';
 function currentDesigner(){return roleProfiles[currentRole].designer;}
@@ -2173,14 +2173,14 @@ const masterData={
     +'</div><div class="note" style="margin-top:12px">Every code here is selectable, not free text, so reports (rejection reasons, override audit) stay analysable.</div>'},
   orgchart:{title:'Master Org Chart', note:'MRJ org chart from Jul 2026 mapped into dashboard-relevant access groups.',
     body:'<div class="scopewrap">'
-    +'<div class="scard"><h4>Board / Full Admin</h4><div class="note">RTA, MTA, Anand Laghate, Mangesh, Namrata, Mary</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> all pages, all B2B and B2C orders, Masters &amp; Config.</div></div>'
-    +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Anand, Amir, Mangesh, Namrata</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> planning dashboards, route, load, priority and reports for all orders.</div></div>'
+    +'<div class="scard"><h4>Board / Full Admin</h4><div class="note">Anand Laghate, Mangesh, Namrata</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> all pages, all B2B and B2C orders, Masters &amp; Config.</div></div>'
+    +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Amir</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> planning dashboards, route, load, priority and reports for all orders. Full admins can also see these screens through admin access.</div></div>'
     +'<div class="scard"><h4>B2C AI - Harsha</h4><div class="note">Managers/team: Harsha, Vrinda. Designers: Prasad, Riya, Nivya, Rakesh, Generic AI Designer 1, Generic AI Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AI B2C team orders for heads/managers; own AI B2C orders for designers.</div></div>'
     +'<div class="scard"><h4>B2C AID / Retail / DL - Bharti</h4><div class="note">Managers/team: Bharti, Sakshi, Ravi. Designers: Usha, Shruti, Krish, Jennifer, Aishwarya, Ashmi, Roopali, Anil, Rohit, Generic AID Designer 1, Generic AID Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AID/Retail/DL B2C team orders for heads/managers; own AID B2C orders for designers.</div></div>'
     +'<div class="scard"><h4>B2C Pune - Amarkant / Rachana</h4><div class="note">Managers/team: Amarkant, Rachana. Designers: Mrinal, Aditi, Shruti Nale, Shital, Shubham, Generic Pune Designer 1, Generic Pune Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> Pune B2C team orders for heads/managers; own Pune B2C orders for designers.</div></div>'
     +'<div class="scard"><h4>Purchase</h4><div class="note">Santosh Yadav, Zubair, Sandeep, Pravin</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> RM Dashboard, PO Dashboard and purchase reports.</div></div>'
     +'<div class="scard"><h4>Production / Factory</h4><div class="note">Avan, Prashant, Amir, Pratish, Sachin, Suhas, Thapa plus generic workers/operators.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> station load, scan, packing, route context and production reports.</div></div>'
-    +'<div class="scard"><h4>Dispatch / Logistics</h4><div class="note">Mangesh, Ganesh, Rakesh</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> packing station, order detail and dispatch reports.</div></div>'
+    +'<div class="scard"><h4>Dispatch / Logistics</h4><div class="note">Ganesh, Rakesh</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> packing station, order detail and dispatch reports.</div></div>'
     +'<div class="scard"><h4>In Org Chart, No Dashboard Access Yet</h4><div class="note">Digital marketing, social media, SEO, HR, finance, customer care and other non-operational roles remain visible in the org chart but are not active dashboard users for this phase.</div></div>'
     +'</div>'},
   users:{title:'Users & Roles', note:'Org-chart roles from full admin to operator, each with station- and screen-level permissions.',
@@ -2270,16 +2270,11 @@ Object.assign(GROUPS,{
 ['ops','b2b','ai','aid','pune','logistics','finance','b2c','design'].forEach(k=>delete GROUPS[k]);
 USERS.length=0;
 [
-  ['RTA','rta','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
-  ['MTA','mta','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
   ['Anand Laghate','anand','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
   ['Mangesh','mangesh','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
   ['Namrata','namrata','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
-  ['Mary','mary','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
-  ['Anand','anand.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
   ['Amir','amir','PPC / Planning','ppc','rw','All planning screens and all orders'],
-  ['Mangesh PPC','mangesh.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
-  ['Namrata PPC','namrata.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
+  ['Mary','mary','Corporate / Purchase / Retail MIS','purchase','view','Purchase, retail MIS and operations-linked reports'],
   ['Harsha','harsha','B2C AI Head','b2c_ai','view','AI B2C team orders'],
   ['Vrinda','vrinda','B2C AI Manager','b2c_ai','view','AI B2C team orders'],
   ['Bharti','bharti','B2C AID Head','b2c_aid','view','AID/Retail/DL B2C team orders'],
