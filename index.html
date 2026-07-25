@@ -288,9 +288,15 @@ body.locked .gate{display:flex}
     <div class="rolebox">
       <label for="role-switch">View as</label>
       <select id="role-switch" onchange="applyRole(this.value)">
-        <option value="ppc">PPC Head - R. Kulkarni</option>
+        <option value="admin-namrata">Full Admin - Namrata</option>
+        <option value="ppc-amir">PPC / Planning - Amir</option>
         <option value="designer-rohan">Designer - Ar. Rohan Bhide</option>
-        <option value="designer-neha">Designer - Ar. Neha Kulkarni</option>
+        <option value="b2c-bharti">B2C Head - Bharti</option>
+        <option value="purchase-santosh">Purchase - Santosh</option>
+        <option value="production-avan">Production - Avan</option>
+        <option value="supervisor-generic">Supervisor - Generic</option>
+        <option value="operator-generic">Operator - Generic</option>
+        <option value="dispatch-mangesh">Dispatch - Mangesh</option>
       </select>
       <div class="hint" id="role-hint">Full access: all screens and all orders.</div>
     </div>
@@ -315,7 +321,7 @@ body.locked .gate{display:flex}
       <h5>Output</h5>
       <button data-s="rep"><span class="ic">≣</span>Reports</button>
     </nav>
-    <div class="user"><b>R. Kulkarni</b>PPC Head · Wed 15 Jul 2026</div>
+    <div class="user"><b>Namrata</b>Full Admin · Wed 15 Jul 2026</div>
   </aside>
 
   <div class="main">
@@ -1110,6 +1116,7 @@ body.locked .gate{display:flex}
 <!-- ============ MASTERS & CONFIG ============ -->
 <section class="screen" id="s-mast">
   <div class="grid g3">
+    <div class="mtile"><b>Master Org Chart</b><div class="note">Board, corporate, B2C, B2B, manufacturing and dashboard-relevant teams</div><button class="btn" onclick="openMaster('orgchart')">Open</button></div>
     <div class="mtile"><b>Working &amp; Holiday Calendar</b><div class="note">General Shift, Shift 1, Shift 2 · Sundays off · pick-a-date holiday calendar</div><button class="btn" onclick="openMaster('calendar')">Open</button></div>
     <div class="mtile"><b>Vendor Lead-Time Master</b><div class="note">Past 3-month avg &amp; current-month lead time per vendor</div><button class="btn" onclick="openMaster('vendor')">Open</button></div>
     <div class="mtile"><b>Priority Rules</b><div class="note">Job-flow order: Misc → Tatkal → High Priority → Normal · critical-path override</div><button class="btn" onclick="openMaster('priority')">Open</button></div>
@@ -1288,7 +1295,7 @@ body.locked .gate{display:flex}
       <h2>Users &amp; Roles — Configurator</h2>
       <button class="uclose" onclick="closeUsersConfig()">✕</button>
     </div>
-    <div class="note">68 users across floor, design and management, each with an explicit access level and order-visibility scope. Every login follows <span class="mono">name@saviesahome.com</span>.</div>
+    <div class="note">Org-chart based users across management, PPC, B2C, purchase, production, dispatch and floor teams. Generic operators/supervisors are kept where actual names are pending. Every login follows <span class="mono">name@saviesahome.com</span>.</div>
 
     <div class="ukpis" id="u-kpis"></div>
 
@@ -1365,32 +1372,57 @@ document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',(
   window.scrollTo(0,0);
 }));
 
+const ALL_PAGES=['dash','rm','po','rej','plan','proc','oroute','order','load','prio','scan','pack','mast','cron','rep'];
+const PPC_PAGES=['dash','rm','po','rej','plan','proc','oroute','order','load','prio','rep'];
 const roleProfiles={
-  ppc:{name:'R. Kulkarni',label:'PPC Head',designer:null,hint:'Full access: all screens and all orders.'},
-  'designer-rohan':{name:'Ar. Rohan Bhide',label:'Designer',designer:'Ar. Rohan Bhide',hint:'Designer access: Order Route & Days and Order Detail, own orders only.'},
-  'designer-neha':{name:'Ar. Neha Kulkarni',label:'Designer',designer:'Ar. Neha Kulkarni',hint:'Designer access: Order Route & Days and Order Detail, own orders only.'}
+  'admin-namrata':{name:'Namrata',label:'Full Admin',designer:null,channel:null,pages:ALL_PAGES,hint:'Full admin access: all screens and all B2B/B2C orders.'},
+  'ppc-amir':{name:'Amir',label:'PPC / Planning',designer:null,channel:null,pages:PPC_PAGES,hint:'PPC / Planning access: planning, priority, route, load and reports for all orders.'},
+  'designer-rohan':{name:'Ar. Rohan Bhide',label:'Designer',designer:'Ar. Rohan Bhide',channel:'B2C',pages:['oroute','order'],hint:'Designer access: B2C only, own orders only, Order Route & Days and Order Detail.'},
+  'b2c-bharti':{name:'Bharti',label:'B2C Head',designer:null,channel:'B2C',pages:['oroute','order','rej','rep'],hint:'B2C head access: B2C team orders, order tracking, rejections and reports.'},
+  'purchase-santosh':{name:'Santosh',label:'Purchase',designer:null,channel:null,pages:['rm','po','rep'],hint:'Purchase access: RM Dashboard, PO Dashboard and purchase-linked reports.'},
+  'production-avan':{name:'Avan',label:'Production',designer:null,channel:null,pages:['oroute','order','load','scan','pack','rep'],hint:'Production access: route/load/floor execution screens and production reports.'},
+  'supervisor-generic':{name:'Generic Supervisor',label:'Supervisor',designer:null,channel:null,pages:['oroute','order','load','scan','pack'],hint:'Supervisor access: own station work, load, scan and order context.'},
+  'operator-generic':{name:'Generic Operator',label:'Operator',designer:null,channel:null,pages:['scan','pack'],hint:'Operator access: station scan or packing station only.'},
+  'dispatch-mangesh':{name:'Mangesh',label:'Dispatch / Logistics',designer:null,channel:null,pages:['pack','order','rep'],hint:'Dispatch access: packing station, order detail and dispatch-linked reports.'}
 };
-let currentRole='ppc';
+let currentRole='admin-namrata';
 function currentDesigner(){return roleProfiles[currentRole].designer;}
-function roleAllowsOrder(o){return !currentDesigner()||o.designer===currentDesigner();}
+function currentChannelScope(){return roleProfiles[currentRole].channel;}
+function roleAllowsOrder(o){
+  const ds=currentDesigner(),ch=currentChannelScope();
+  if(ds&&o.designer!==ds)return false;
+  if(ch&&o.channel!==ch)return false;
+  return true;
+}
 function applyRole(role){
   currentRole=role;
   const p=roleProfiles[role];
   document.getElementById('role-hint').textContent=p.hint;
   document.querySelector('.side .user').innerHTML='<b>'+p.name+'</b>'+p.label+' · Wed 15 Jul 2026';
   document.querySelectorAll('.nav button').forEach(btn=>{
-    const allowed=!p.designer||btn.dataset.s==='oroute'||btn.dataset.s==='order';
+    const allowed=p.pages.includes(btn.dataset.s);
     btn.style.display=allowed?'':'none';
     if(!allowed)btn.classList.remove('on');
   });
-  document.querySelectorAll('.nav h5').forEach(h=>{h.style.display=p.designer?'none':'';});
-  ['or-f-designer','od-f-designer'].forEach(id=>{const el=document.getElementById(id);if(el){el.value=p.designer||'all';el.disabled=!!p.designer;}});
+  document.querySelectorAll('.nav h5').forEach(h=>{h.style.display=p.pages.length<ALL_PAGES.length?'none':'';});
+  applyScopedOrderFilters('or');
+  applyScopedOrderFilters('od');
   const active=document.querySelector('.screen.on');
   const activeKey=active?active.id.replace('s-',''):'dash';
-  if(p.designer && !['oroute','order'].includes(activeKey))navTo('oroute');
-  if(!p.designer && !document.querySelector('.nav button.on'))navTo('dash');
+  if(!p.pages.includes(activeKey))navTo(p.pages[0]);
+  if(p.pages.includes(activeKey)&&!document.querySelector('.nav button.on'))navTo(activeKey);
   if(typeof orFilterUpdate==='function')orFilterUpdate();
   if(typeof odFilterUpdate==='function')odFilterUpdate();
+}
+
+function applyScopedOrderFilters(prefix){
+  const p=roleProfiles[currentRole];
+  const ch=document.getElementById(prefix+'-f-channel');
+  const sub=document.getElementById(prefix+'-f-sub');
+  const ds=document.getElementById(prefix+'-f-designer');
+  if(ch){ch.value=p.channel||'all';ch.disabled=!!p.channel;}
+  if(sub){sub.style.display=p.channel==='B2C'?'':'none';if(p.channel!=='B2C')sub.value='all';}
+  if(ds){ds.value=p.designer||'all';ds.disabled=!!p.designer;}
 }
 
 function navTo(k){document.querySelector('button[data-s='+k+']').click();}
@@ -1939,9 +1971,9 @@ function orClearFilters(){
   document.getElementById('or-f-wo').value='';
   document.getElementById('or-f-client').value='all';
   document.getElementById('or-f-project').value='';
-  document.getElementById('or-f-channel').value='all';
+  document.getElementById('or-f-channel').value=currentChannelScope()||'all';
   document.getElementById('or-f-sub').value='all';
-  document.getElementById('or-f-sub').style.display='none';
+  document.getElementById('or-f-sub').style.display=currentChannelScope()==='B2C'?'':'none';
   document.getElementById('or-f-designer').value=currentDesigner()||'all';
   orFilterUpdate();
 }
@@ -1995,9 +2027,9 @@ function odClearFilters(){
   document.getElementById('od-f-wo').value='';
   document.getElementById('od-f-client').value='all';
   document.getElementById('od-f-project').value='';
-  document.getElementById('od-f-channel').value='all';
+  document.getElementById('od-f-channel').value=currentChannelScope()||'all';
   document.getElementById('od-f-sub').value='all';
-  document.getElementById('od-f-sub').style.display='none';
+  document.getElementById('od-f-sub').style.display=currentChannelScope()==='B2C'?'':'none';
   document.getElementById('od-f-designer').value=currentDesigner()||'all';
   odFilterUpdate();
 }
@@ -2008,6 +2040,7 @@ function odLoadOrder(wo){
   alert('WO '+wo+(o?' — '+o.client+', "'+o.project+'"':'')+' — in production Sparta loads this order\u2019s detail view here. Demo dataset has full detail built out for 0374 only.');
 }
 odPopulateFilters();
+applyRole(currentRole);
 // ---- station day-wise load (date range) ----
 const dlBase={'Edge Band':112,'Panel Saw':98,'CNC':93,'Hot Press':82,'Beam Saw':72,'PRF Cutting':62,'Assembly':70,'Cleaning':50,'Packing':46};
 function renderDayLoad(){const f=new Date(document.getElementById('ld-from').value),t=new Date(document.getElementById('ld-to').value);
@@ -2131,7 +2164,18 @@ const masterData={
     +'<div style="margin-top:12px"><b style="font-size:12px">Override reasons</b><div class="note" style="margin-top:4px">Overtime approved · Vendor expedite confirmed · Customer date renegotiated · Capacity added (extra shift) · Other (specify)</div></div>'
     +'<div style="margin-top:12px"><b style="font-size:12px">Damage / exception causes</b><div class="note" style="margin-top:4px">In-transit damage · Handling damage (floor) · Packing damage · Material defect (vendor) · Rework-induced</div></div>'
     +'</div><div class="note" style="margin-top:12px">Every code here is selectable, not free text, so reports (rejection reasons, override audit) stay analysable.</div>'},
-  users:{title:'Users & Roles', note:'10 roles from floor operator to admin, each with station- and screen-level permissions.',
+  orgchart:{title:'Master Org Chart', note:'MRJ org chart from Jul 2026 mapped into dashboard-relevant access groups.',
+    body:'<div class="scopewrap">'
+    +'<div class="scard"><h4>Board / Full Admin</h4><div class="note">RTA, MTA, Anand Laghate, Mangesh, Namrata</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> all pages, all B2B and B2C orders, Masters &amp; Config.</div></div>'
+    +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Anand, Amir, Mangesh, Namrata</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> planning dashboards, route, load, priority and reports for all orders.</div></div>'
+    +'<div class="scard"><h4>B2C Heads / Managers</h4><div class="note">Bharti, Harsha, Sakshi, Ravi, Vrinda, Amarkant, Rachana</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> B2C orders for their team, order route/detail, rejection view and reports.</div></div>'
+    +'<div class="scard"><h4>B2C Designers</h4><div class="note">Usha, Shruti, Krish, Jennifer, Aishwarya, Ashmi, Roopali, Anil, Rohit, Prasad, Riya, Nivya, Rakesh, Aditi, Shital and generic designers where names are pending.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> B2C only, own orders only, Order Detail and Order Route &amp; Days.</div></div>'
+    +'<div class="scard"><h4>Purchase</h4><div class="note">Santosh Yadav, Zubair, Sandeep, Pravin</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> RM Dashboard, PO Dashboard and purchase reports.</div></div>'
+    +'<div class="scard"><h4>Production / Factory</h4><div class="note">Avan, Prashant, Amir, Pratish, Sachin, Suhas, Thapa plus generic workers/operators.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> station load, scan, packing, route context and production reports.</div></div>'
+    +'<div class="scard"><h4>Dispatch / Logistics</h4><div class="note">Mangesh, Ganesh, Rakesh</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> packing station, order detail and dispatch reports.</div></div>'
+    +'<div class="scard"><h4>In Org Chart, No Dashboard Access Yet</h4><div class="note">Digital marketing, social media, SEO, HR, finance, customer care and other non-operational roles remain visible in the org chart but are not active dashboard users for this phase.</div></div>'
+    +'</div>'},
+  users:{title:'Users & Roles', note:'Org-chart roles from full admin to operator, each with station- and screen-level permissions.',
     body:'<table><thead><tr><th>Role</th><th>Users</th><th>Key permissions</th></tr></thead><tbody>'
     +'<tr><td>Operator</td><td class="mono">64</td><td class="note">Station Scan only — own station, scan in/out, rework/damage/hold</td></tr>'
     +'<tr><td>Packing operator</td><td class="mono">8</td><td class="note">Packing Station only — scan reconciliation</td></tr>'
@@ -2208,6 +2252,62 @@ STATIONS.forEach(([st,n])=>{
   }
 });
 
+Object.assign(GROUPS,{
+  admin:['','Full Admin / Management'], ppc:['','PPC / Planning'], b2c:['','B2C Heads & Managers'],
+  design:['','B2C Designers'], purchase:['','Purchase'], production:['','Production / Factory'],
+  supervisor:['','Supervisors'], dispatch:['','Dispatch / Logistics'], floor:['','Floor operators'],
+  chartonly:['','Org chart only']
+});
+['ops','b2b','ai','aid','pune','logistics','finance'].forEach(k=>delete GROUPS[k]);
+USERS.length=0;
+[
+  ['RTA','rta','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
+  ['MTA','mta','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
+  ['Anand Laghate','anand','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
+  ['Mangesh','mangesh','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
+  ['Namrata','namrata','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
+  ['Anand','anand.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
+  ['Amir','amir','PPC / Planning','ppc','rw','All planning screens and all orders'],
+  ['Mangesh PPC','mangesh.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
+  ['Namrata PPC','namrata.ppc','PPC / Planning','ppc','rw','All planning screens and all orders'],
+  ['Bharti','bharti','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Harsha','harsha','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Sakshi','sakshi','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Ravi','ravi','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Vrinda','vrinda','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Amarkant','amarkant','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Rachana','rachana','B2C Head / Manager','b2c','view','B2C team orders'],
+  ['Santosh Yadav','santosh','Purchase','purchase','view','RM, PO and vendor-linked reports'],
+  ['Zubair','zubair','Purchase','purchase','view','RM, PO and vendor-linked reports'],
+  ['Sandeep','sandeep','Purchase','purchase','view','RM, PO and vendor-linked reports'],
+  ['Pravin','pravin','Purchase','purchase','view','RM, PO and vendor-linked reports'],
+  ['Avan','avan','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Prashant','prashant','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Amir Production','amir.production','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Pratish','pratish','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Sachin','sachin','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Suhas','suhas','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Thapa','thapa','Production / Factory','production','rw','Production, load, scan and packing screens'],
+  ['Ganesh','ganesh','Dispatch / Logistics','dispatch','view','Packing, order detail and dispatch-linked reports'],
+  ['Rakesh','rakesh','Dispatch / Logistics','dispatch','view','Packing, order detail and dispatch-linked reports']
+].forEach(u=>USERS.push(mk(u[0],u[1]+'@saviesahome.com',u[2],u[3],u[4],u[5])));
+['Usha','Shruti','Krish','Jennifer','Aishwarya','Ashmi','Roopali','Anil','Rohit','Prasad','Riya','Nivya','Rakesh Designer','Aditi','Shital','Generic Designer 1','Generic Designer 2'].forEach((name,i)=>{
+  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/\.$/,'');
+  USERS.push(mk(name,slug+'@saviesahome.com','B2C Designer','design','view','B2C own orders only'));
+});
+['Beam Saw Supervisor','Edge Band Supervisor','CNC Supervisor','Packing Supervisor','Generic Supervisor 1','Generic Supervisor 2'].forEach(name=>{
+  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/\.$/,'');
+  USERS.push(mk(name,slug+'@saviesahome.com','Supervisor','supervisor','view','Own station group'));
+});
+['Beam Saw Operator','Edge Band Operator 1','Edge Band Operator 2','CNC Operator 1','CNC Operator 2','Panel Saw Operator','Packing Operator 1','Packing Operator 2','QC Operator','Dispatch Operator','Generic Operator 1','Generic Operator 2'].forEach(name=>{
+  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/\.$/,'');
+  USERS.push(mk(name,slug+'@saviesahome.com','Operator','floor','scan','Own station queue only'));
+});
+['Digital Marketing Team','Social Media Team','SEO Team','HR Team','Finance Team','Customer Care Team'].forEach(name=>{
+  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/\.$/,'');
+  USERS.push(mk(name,slug+'@saviesahome.com','Org chart only','chartonly','view','No dashboard access in this phase'));
+});
+
 function renderKPIs(){
   const counts={rwe:0,rw:0,view:0,scan:0};
   USERS.forEach(u=>counts[u.access]++);
@@ -2269,9 +2369,26 @@ function showUTab(t){
   document.querySelectorAll('.upanel').forEach(p=>p.classList.remove('on'));
   document.getElementById('ut-'+t).classList.add('on');
 }
+function renderOrgRoleMap(){
+  const chips=g=>USERS.filter(u=>u.group===g).map(u=>'<span class="dchip">'+u.name+'</span>').join('');
+  document.getElementById('ut-map-cards').innerHTML=
+    '<div class="scard"><h4>Full Admin / Management</h4><div class="note">All pages, all B2B and B2C orders, Masters &amp; Config.</div><div class="dchips">'+chips('admin')+'</div></div>'
+    +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Planning dashboards, route, load, priority and reports for all orders.</div><div class="dchips">'+chips('ppc')+'</div></div>'
+    +'<div class="scard"><h4>B2C Heads &amp; Designers</h4><div class="note">Heads see B2C team orders. Designers see B2C own orders only.</div><div class="dchips">'+chips('b2c')+chips('design')+'</div></div>'
+    +'<div class="scard"><h4>Purchase</h4><div class="note">RM Dashboard, PO Dashboard and purchase-linked reports.</div><div class="dchips">'+chips('purchase')+'</div></div>'
+    +'<div class="scard"><h4>Production / Floor</h4><div class="note">Production gets load, scan, packing and route context. Operators are station-scoped.</div><div class="dchips">'+chips('production')+chips('supervisor')+chips('floor')+'</div></div>'
+    +'<div class="scard"><h4>Dispatch / Logistics</h4><div class="note">Packing station, order detail and dispatch-linked reports.</div><div class="dchips">'+chips('dispatch')+'</div></div>'
+    +'<div class="scard"><h4>Org Chart Only</h4><div class="note">Visible in the master org chart, no dashboard access in this phase.</div><div class="dchips">'+chips('chartonly')+'</div></div>';
+  const warn=document.querySelector('#ut-map .warnbox');
+  if(warn)warn.innerHTML='<b>Visibility rules enforced app-wide:</b><div style="margin-top:5px">Designers see only their own B2C orders and cannot switch to B2B.</div><div>B2C heads/managers see B2C orders for their team.</div><div>Marketing, HR, finance, SEO, social media and customer care remain in the master org chart only for this phase.</div>';
+}
+function renderOrgFloor(){
+  const rows=USERS.filter(u=>u.group==='floor'||u.group==='supervisor');
+  document.getElementById('u-floorgrid').innerHTML=rows.map(u=>'<div class="mtile"><b>'+u.name+'</b><div class="note">'+u.role+' · '+u.scope+'</div><div class="dchips"><span class="dchip">'+u.email+'</span></div></div>').join('');
+}
 let usersInit=false;
 function openUsersConfig(){
-  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderMap();renderFloor();usersInit=true;}
+  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderOrgRoleMap();renderOrgFloor();usersInit=true;}
   document.getElementById('usersmodal').classList.add('on');
 }
 function closeUsersConfig(){document.getElementById('usersmodal').classList.remove('on');}
