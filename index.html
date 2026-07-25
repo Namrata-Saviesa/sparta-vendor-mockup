@@ -1202,30 +1202,6 @@ body.locked .gate{display:flex}
       <div class="repcard clickable" onclick="openReport('otif')"><div><b>OTIF trend report</b><div class="note">Overall, B2C and B2B only; current month + Apr-Jun average</div></div><button class="btn" onclick="event.stopPropagation();openReport('otif')">View</button></div>
     </div>
   </div>
-  <div class="card" style="margin-top:14px">
-    <h3>Efficiency logic — sample (Week 28)</h3>
-    <div class="grid g2">
-      <div>
-        <div class="note" style="margin-bottom:6px"><b>Worker efficiency</b> = Σ(std minutes earned from completed scans) ÷ attendance minutes. Std minutes come from the Cycle Time Master per panel per station; rework scans earn 0.</div>
-        <table><thead><tr><th>Worker</th><th>Station</th><th>Earned min</th><th>Attend min</th><th>Eff %</th><th>Rework %</th></tr></thead><tbody>
-          <tr class="row r-ok"><td class="mono">W-102</td><td>Beam Saw</td><td class="mono">2,470</td><td class="mono">2,640</td><td class="mono" style="color:var(--ok);font-weight:700">94%</td><td class="mono">0.8%</td></tr>
-          <tr class="row r-ok"><td class="mono">W-114</td><td>Edge Band</td><td class="mono">2,320</td><td class="mono">2,640</td><td class="mono" style="color:var(--ok);font-weight:700">88%</td><td class="mono">1.2%</td></tr>
-          <tr class="row r-watch"><td class="mono">W-131</td><td>Router</td><td class="mono">1,930</td><td class="mono">2,640</td><td class="mono" style="color:#9a6b00;font-weight:700">73%</td><td class="mono">2.9%</td></tr>
-          <tr class="row r-late"><td class="mono">W-140</td><td>CNC</td><td class="mono">1,540</td><td class="mono">2,640</td><td class="mono" style="color:var(--late);font-weight:700">58%</td><td class="mono">4.1%</td></tr>
-        </tbody></table>
-      </div>
-      <div>
-        <div class="note" style="margin-bottom:6px"><b>Supervisor efficiency (weighted)</b> — a supervisor oversees several stations, so a plain average would let one small station distort the picture. Weight each station by its std-hours volume: <span class="mono">Sup Eff = Σ(station eff × station std-hrs) ÷ Σ(station std-hrs)</span>.</div>
-        <table><thead><tr><th>Supervisor S-07 · stations</th><th>Std hrs (wt)</th><th>Station eff</th><th>Contribution</th></tr></thead><tbody>
-          <tr><td>Beam Saw</td><td class="mono">41.2</td><td class="mono">94%</td><td class="mono">38.7</td></tr>
-          <tr><td>Edge Band 1+2</td><td class="mono">88.0</td><td class="mono">88%</td><td class="mono">77.4</td></tr>
-          <tr><td>Panel Saw</td><td class="mono">30.5</td><td class="mono">81%</td><td class="mono">24.7</td></tr>
-          <tr style="border-top:2px solid var(--line)"><td><b>Weighted efficiency</b></td><td class="mono"><b>159.7</b></td><td></td><td class="mono" style="color:var(--ok)"><b>140.8 ÷ 159.7 = 88.2%</b></td></tr>
-        </tbody></table>
-        <div class="note" style="margin-top:6px">Edge Band dominates (88 of 159.7 std-hrs) so it correctly drives S-07's score — exactly the weighted behaviour needed when one person oversees more than a machine.</div>
-      </div>
-    </div>
-  </div>
 </section>
     </div>
   </div>
@@ -2049,16 +2025,16 @@ reportData.workerEff={
 };
 reportData.supervisorEff={
   title:'Supervisor efficiency report (weighted)',
-  note:'Weighted average across all stations supervised. Each station is weighted by standard-hours volume.',
-  body:'<div class="warnbox"><b>Report logic:</b> Supervisor efficiency is weighted because one supervisor may oversee stations with very different production volumes. A high-volume station must affect the score more than a small station.</div>'
-    +'<div class="note" style="margin-bottom:8px"><b>Formula:</b> <span class="mono">Supervisor Eff % = sum(station efficiency x station standard hours) / sum(station standard hours)</span>. <b>Contribution</b> = station efficiency x station standard hours.</div>'
+  note:'Weighted average across all stations supervised. Each station is weighted by machine hours available for that day.',
+  body:'<div class="warnbox"><b>Report logic:</b> Supervisor efficiency is weighted by the actual machine hours available under that supervisor for the selected day. A station with more available machine hours affects the supervisor score more, but no station-day value exceeds one 8-hour shift in this mockup.</div>'
+    +'<div class="note" style="margin-bottom:8px"><b>Formula:</b> <span class="mono">Supervisor Eff % = sum(earned standard hours) / sum(machine hours available) x 100</span>. This is the same as <span class="mono">sum(station efficiency x machine hours available) / sum(machine hours available)</span>.</div>'
     +'<div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:10px 0;padding:10px;background:#fafbf8;border:1px solid var(--line);border-radius:8px"><div><label class="note" style="display:block;font-weight:700">View day</label><input type="date" class="btn" value="2026-07-15" onchange="document.getElementById(&quot;supervisor-day-label&quot;).textContent=this.value"></div><div class="note">Selected day: <span class="mono" id="supervisor-day-label">2026-07-15</span></div></div>'
-    +'<table><thead><tr><th>Supervisor / station set</th><th>Std hrs (wt)</th><th>Selected day eff</th><th>Apr-Jun avg</th><th>Current month</th><th>Trend</th></tr></thead><tbody>'
-    +'<tr><td>Supervisor S-07 - Beam Saw</td><td class="mono">41.2</td><td class="mono">94%</td><td class="mono">90%</td><td class="mono" style="font-weight:700;color:var(--ok)">92%</td><td><span class="trend up">Up +2%</span></td></tr>'
-    +'<tr><td>Supervisor S-07 - Edge Band 1+2</td><td class="mono">88.0</td><td class="mono">88%</td><td class="mono">85%</td><td class="mono" style="font-weight:700;color:var(--ok)">87%</td><td><span class="trend up">Up +2%</span></td></tr>'
-    +'<tr><td>Supervisor S-07 - Panel Saw</td><td class="mono">30.5</td><td class="mono">81%</td><td class="mono">84%</td><td class="mono" style="font-weight:700;color:#9a6b00">82%</td><td><span class="trend down">Down -2%</span></td></tr>'
-    +'<tr style="border-top:2px solid var(--line)"><td><b>Weighted supervisor total</b></td><td class="mono"><b>159.7</b></td><td class="mono"><b>88.2%</b></td><td class="mono"><b>85.8%</b></td><td class="mono" style="font-weight:700;color:var(--ok)"><b>87.0%</b></td><td><span class="trend up">Up +1.2%</span></td></tr>'
-    +'</tbody></table><div class="note" style="margin-top:8px"><b>Columns:</b> Supervisor / station set = stations under the supervisor; Std hrs (wt) = production-volume weight used in the formula; Selected day eff = weighted efficiency for the chosen date; Apr-Jun avg = stable 3-month weighted baseline; Current month = July month-to-date weighted efficiency; Trend = current month vs Apr-Jun avg.</div>'
+    +'<table><thead><tr><th>Supervisor / station set</th><th>Machine hrs available (weight)</th><th>Earned std hrs</th><th>Selected day eff</th><th>Apr-Jun avg</th><th>Current month</th><th>Trend</th></tr></thead><tbody>'
+    +'<tr><td>Supervisor S-07 - Beam Saw</td><td class="mono">8.0</td><td class="mono">7.5</td><td class="mono">94%</td><td class="mono">90%</td><td class="mono" style="font-weight:700;color:var(--ok)">92%</td><td><span class="trend up">Up +2%</span></td></tr>'
+    +'<tr><td>Supervisor S-07 - Edge Band</td><td class="mono">8.0</td><td class="mono">7.0</td><td class="mono">88%</td><td class="mono">85%</td><td class="mono" style="font-weight:700;color:var(--ok)">87%</td><td><span class="trend up">Up +2%</span></td></tr>'
+    +'<tr><td>Supervisor S-07 - Panel Saw</td><td class="mono">4.0</td><td class="mono">3.2</td><td class="mono">80%</td><td class="mono">84%</td><td class="mono" style="font-weight:700;color:#9a6b00">82%</td><td><span class="trend down">Down -2%</span></td></tr>'
+    +'<tr style="border-top:2px solid var(--line)"><td><b>Weighted supervisor total</b></td><td class="mono"><b>20.0</b></td><td class="mono"><b>17.7</b></td><td class="mono"><b>88.5%</b></td><td class="mono"><b>85.8%</b></td><td class="mono" style="font-weight:700;color:var(--ok)"><b>87.0%</b></td><td><span class="trend up">Up +1.2%</span></td></tr>'
+    +'</tbody></table><div class="note" style="margin-top:8px"><b>Columns:</b> Supervisor / station set = stations under the supervisor; Machine hrs available (weight) = available machine capacity for the selected day, max 8 per station in this mockup; Earned std hrs = completed work converted using cycle-time standards; Selected day eff = earned std hrs / machine hrs available; Apr-Jun avg = stable 3-month baseline; Current month = July month-to-date efficiency; Trend = current month vs Apr-Jun avg.</div>'
 };
 function wireReportRow(label,key){
   const title=[...document.querySelectorAll('#s-rep .repcard b')].find(b=>b.textContent.trim()===label);
@@ -2071,7 +2047,6 @@ function wireReportRow(label,key){
 }
 wireReportRow('Worker efficiency report','workerEff');
 wireReportRow('Supervisor efficiency report (weighted)','supervisorEff');
-[...document.querySelectorAll('#s-rep .card h3')].forEach(h=>{if(h.textContent.trim().startsWith('Efficiency logic'))h.closest('.card').style.display='none';});
 
 // ---- Masters & Config: expanded "Open" views ----
 const masterData={
