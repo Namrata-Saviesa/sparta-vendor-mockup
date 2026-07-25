@@ -4,7 +4,7 @@ Source: `recommendation.md` + `Sparta_Requirements_Mapping.md` (the 23-line `Spa
 
 ## Recommended build order
 1. ✅ **Rebuild Priority Control** to the 4-lane model + CP override; cascade labels to Station Scan. *(Implemented in the v3.2 mockup round; fixes the known inconsistency and satisfies row 22.)*
-2. **OTIF trend widget** per Anand's comment (row 5) — Overall / B2C / B2B, Apr–Jun avg + current month. No store-level.
+2. ✅ **OTIF trend widget** per Anand's comment (row 5) — Overall / B2C / B2B, Apr–Jun avg + current month. No store-level. *(Implemented in the v3.2 mockup round.)*
 3. Row 4 — **Designer "all my ongoing jobs" worklist** (`s-oroute`).
 4. Row 18 — **≥90% job-bank chaser → 5-day dispatch planner** (`s-dash` widget).
 5. Row 24 — **Date-revision count + auto-notify** (`s-dash` KPI + note, `s-rep` card).
@@ -45,7 +45,7 @@ Source: `recommendation.md` + `Sparta_Requirements_Mapping.md` (the 23-line `Spa
 |---|---|---|---|
 | 3 | 1-year data retention | 🔴 | `s-mast` new tile |
 | 4 | Designer-wise ongoing jobs search | 🟡 | `s-oroute` new widget |
-| 5 | OTIF publishing + trend (Overall + B2C/B2B only) | 🟡 | `s-dash` widget, `s-rep` card edit |
+| 5 | OTIF publishing + trend (Overall + B2C/B2B only) | ✅ | `s-dash` widget + `s-rep` card edit completed |
 | 6 | Barcode route symbols on labels | 🔴 | `s-scan` label card |
 | 7 | WO split: cutting / stores / vendor | 🟡 | `s-order` breakdown card |
 | 8 | ALP consolidated cutting-list barcode | 🔴 | `s-oroute` (WO 0428B ALP line) |
