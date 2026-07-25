@@ -331,17 +331,6 @@ body.locked .gate{display:flex}
   </div>
   <div class="note" style="margin-top:6px">OTIF = orders dispatched with Committed date = actual Packing date (on time, in full). Tatkal = flagged urgent/rush orders. Misc = uncategorised exceptions pending owner assignment.</div>
 
-  <div class="card" style="margin-top:14px">
-    <h3>OTIF trend - Overall / B2C / B2B <span class="chip c-ok">Anand approved level</span></h3>
-    <table><thead><tr><th>Level</th><th>Apr</th><th>May</th><th>Jun</th><th>Apr-Jun avg</th><th>Current month</th><th>Trend</th></tr></thead>
-    <tbody>
-      <tr class="row r-ok"><td><b>Overall</b></td><td class="mono">76%</td><td class="mono">80%</td><td class="mono">81%</td><td class="mono" style="font-weight:700">79%</td><td class="mono" style="font-weight:700;color:var(--ok)">82%</td><td><span class="trend up">Up +3%</span></td></tr>
-      <tr class="row r-watch"><td><b>B2C</b></td><td class="mono">73%</td><td class="mono">75%</td><td class="mono">77%</td><td class="mono" style="font-weight:700">75%</td><td class="mono" style="font-weight:700;color:var(--ok)">78%</td><td><span class="trend up">Up +3%</span></td></tr>
-      <tr class="row r-ok"><td><b>B2B</b></td><td class="mono">80%</td><td class="mono">84%</td><td class="mono">85%</td><td class="mono" style="font-weight:700">83%</td><td class="mono" style="font-weight:700;color:var(--ok)">86%</td><td><span class="trend up">Up +3%</span></td></tr>
-    </tbody></table>
-    <div class="note" style="margin-top:8px">Per Anand's comment, OTIF is published only at Overall, B2C and B2B level. AI / AID / Pune store-level OTIF is intentionally not shown.</div>
-  </div>
-
   <div class="grid g2" style="margin-top:14px">
         <div class="card">
       <h3>Expected vs committed — worst gaps</h3>
@@ -1210,6 +1199,16 @@ body.locked .gate{display:flex}
       <div class="repcard"><div><b>Store-wise — next 3 days dispatch report</b><div class="note">Dispatch-ready orders by store, next 3 days</div></div><button class="btn">Excel ↓</button></div>
       <div class="repcard"><div><b>OTIF trend report</b><div class="note">Overall, B2C and B2B only; current month + Apr-Jun average</div></div><button class="btn">Excel ↓</button></div>
     </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>OTIF trend - Overall / B2C / B2B</h3>
+    <table><thead><tr><th>Level</th><th>Apr</th><th>May</th><th>Jun</th><th>Apr-Jun avg</th><th>Current month</th><th>Trend</th></tr></thead>
+    <tbody>
+      <tr class="row r-ok"><td><b>Overall</b></td><td class="mono">76%</td><td class="mono">80%</td><td class="mono">81%</td><td class="mono" style="font-weight:700">79%</td><td class="mono" style="font-weight:700;color:var(--ok)">82%</td><td><span class="trend up">Up +3%</span></td></tr>
+      <tr class="row r-watch"><td><b>B2C</b></td><td class="mono">73%</td><td class="mono">75%</td><td class="mono">77%</td><td class="mono" style="font-weight:700">75%</td><td class="mono" style="font-weight:700;color:var(--ok)">78%</td><td><span class="trend up">Up +3%</span></td></tr>
+      <tr class="row r-ok"><td><b>B2B</b></td><td class="mono">80%</td><td class="mono">84%</td><td class="mono">85%</td><td class="mono" style="font-weight:700">83%</td><td class="mono" style="font-weight:700;color:var(--ok)">86%</td><td><span class="trend up">Up +3%</span></td></tr>
+    </tbody></table>
+    <div class="note" style="margin-top:8px">OTIF is published only at Overall, B2C and B2B level. AI / AID / Pune store-level OTIF is intentionally not shown.</div>
   </div>
   <div class="card" style="margin-top:14px">
     <h3>Efficiency logic — sample (Week 28)</h3>
