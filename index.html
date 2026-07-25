@@ -32,6 +32,10 @@ button{font-family:inherit;cursor:pointer}
 .logo .b{font-family:var(--disp);font-size:30px;font-weight:700;letter-spacing:.06em;color:#fff}
 .logo .b span{color:var(--orange)}
 .logo .s{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#7d838d;margin-top:2px}
+.rolebox{padding:12px 12px 10px;border-bottom:1px solid var(--chrome-line)}
+.rolebox label{display:block;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#7d838d;margin-bottom:6px}
+.rolebox select{width:100%;background:var(--chrome-2);border:1px solid var(--chrome-line);color:#fff;border-radius:6px;padding:8px 9px;font:inherit;font-size:12px}
+.rolebox .hint{font-size:10px;color:#9aa1ab;margin-top:6px;line-height:1.3}
 .nav{flex:1;padding:10px 8px;overflow-y:auto}
 .nav h5{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#6b7280;padding:12px 10px 5px}
 .nav button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:0;color:#c8cdd5;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;border-left:3px solid transparent}
@@ -281,6 +285,15 @@ body.locked .gate{display:flex}
 <div class="app">
   <aside class="side">
     <div class="logo"><div class="b">SPAR<span>TA</span></div><div class="s">Track · Scan · Pack</div></div>
+    <div class="rolebox">
+      <label for="role-switch">View as</label>
+      <select id="role-switch" onchange="applyRole(this.value)">
+        <option value="ppc">PPC Head - R. Kulkarni</option>
+        <option value="designer-rohan">Designer - Ar. Rohan Bhide</option>
+        <option value="designer-neha">Designer - Ar. Neha Kulkarni</option>
+      </select>
+      <div class="hint" id="role-hint">Full access: all screens and all orders.</div>
+    </div>
     <nav class="nav">
       <h5>PPC Engine</h5>
       <button class="on" data-s="dash"><span class="ic">▦</span>PPC Dashboard</button>
@@ -1343,6 +1356,7 @@ scan:['Station Scan — Operator','Start/stop scans, partial qty, rework, hold �
 mast:['Masters & Config','Route, cycle time, capacity, calendars, approvals'],
 cron:['Report Scheduler','Automatic delivery — which report, to which POC, on which schedule']};
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.style.display==='none')return;
   document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+b.dataset.s).classList.add('on');
@@ -1351,7 +1365,34 @@ document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',(
   window.scrollTo(0,0);
 }));
 
-  
+const roleProfiles={
+  ppc:{name:'R. Kulkarni',label:'PPC Head',designer:null,hint:'Full access: all screens and all orders.'},
+  'designer-rohan':{name:'Ar. Rohan Bhide',label:'Designer',designer:'Ar. Rohan Bhide',hint:'Designer access: Order Route & Days and Order Detail, own orders only.'},
+  'designer-neha':{name:'Ar. Neha Kulkarni',label:'Designer',designer:'Ar. Neha Kulkarni',hint:'Designer access: Order Route & Days and Order Detail, own orders only.'}
+};
+let currentRole='ppc';
+function currentDesigner(){return roleProfiles[currentRole].designer;}
+function roleAllowsOrder(o){return !currentDesigner()||o.designer===currentDesigner();}
+function applyRole(role){
+  currentRole=role;
+  const p=roleProfiles[role];
+  document.getElementById('role-hint').textContent=p.hint;
+  document.querySelector('.side .user').innerHTML='<b>'+p.name+'</b>'+p.label+' · Wed 15 Jul 2026';
+  document.querySelectorAll('.nav button').forEach(btn=>{
+    const allowed=!p.designer||btn.dataset.s==='oroute'||btn.dataset.s==='order';
+    btn.style.display=allowed?'':'none';
+    if(!allowed)btn.classList.remove('on');
+  });
+  document.querySelectorAll('.nav h5').forEach(h=>{h.style.display=p.designer?'none':'';});
+  ['or-f-designer','od-f-designer'].forEach(id=>{const el=document.getElementById(id);if(el){el.value=p.designer||'all';el.disabled=!!p.designer;}});
+  const active=document.querySelector('.screen.on');
+  const activeKey=active?active.id.replace('s-',''):'dash';
+  if(p.designer && !['oroute','order'].includes(activeKey))navTo('oroute');
+  if(!p.designer && !document.querySelector('.nav button.on'))navTo('dash');
+  if(typeof orFilterUpdate==='function')orFilterUpdate();
+  if(typeof odFilterUpdate==='function')odFilterUpdate();
+}
+
 function navTo(k){document.querySelector('button[data-s='+k+']').click();}
 // ---- overtime / half-day preview ----
 function otExclusive(which){
@@ -1881,13 +1922,14 @@ function orFilterUpdate(){
   const sub=document.getElementById('or-f-sub').value;
   const ds=document.getElementById('or-f-designer').value;
   const matches=orRouteOrders.filter(o=>{
+    const okRole=roleAllowsOrder(o);
     const okWo=(wo===''||o.wo.toUpperCase().includes(wo));
     const okCl=(cl==='all'||o.client===cl);
     const okPr=(pr===''||o.project.toLowerCase().includes(pr));
     const okCh=(ch==='all'||o.channel===ch);
     const okSub=(ch!=='B2C'||sub==='all'||o.sub===sub);
     const okDs=(ds==='all'||o.designer===ds);
-    return okWo&&okCl&&okPr&&okCh&&okSub&&okDs;
+    return okRole&&okWo&&okCl&&okPr&&okCh&&okSub&&okDs;
   });
   const sel=document.getElementById('or-f-order');
   sel.innerHTML=matches.length?matches.map(o=>`<option value="${o.wo}">WO ${o.wo} — ${o.client} (${o.project})</option>`).join(''):'<option value="">No matching orders</option>';
@@ -1900,7 +1942,7 @@ function orClearFilters(){
   document.getElementById('or-f-channel').value='all';
   document.getElementById('or-f-sub').value='all';
   document.getElementById('or-f-sub').style.display='none';
-  document.getElementById('or-f-designer').value='all';
+  document.getElementById('or-f-designer').value=currentDesigner()||'all';
   orFilterUpdate();
 }
 function orLoadOrder(wo){
@@ -1936,13 +1978,14 @@ function odFilterUpdate(){
   const sub=document.getElementById('od-f-sub').value;
   const ds=document.getElementById('od-f-designer').value;
   const matches=orRouteOrders.filter(o=>{
+    const okRole=roleAllowsOrder(o);
     const okWo=(wo===''||o.wo.toUpperCase().includes(wo));
     const okCl=(cl==='all'||o.client===cl);
     const okPr=(pr===''||o.project.toLowerCase().includes(pr));
     const okCh=(ch==='all'||o.channel===ch);
     const okSub=(ch!=='B2C'||sub==='all'||o.sub===sub);
     const okDs=(ds==='all'||o.designer===ds);
-    return okWo&&okCl&&okPr&&okCh&&okSub&&okDs;
+    return okRole&&okWo&&okCl&&okPr&&okCh&&okSub&&okDs;
   });
   const sel=document.getElementById('od-f-order');
   sel.innerHTML=matches.length?matches.map(o=>`<option value="${o.wo}">WO ${o.wo} — ${o.client} (${o.project})</option>`).join(''):'<option value="">No matching orders</option>';
@@ -1955,7 +1998,7 @@ function odClearFilters(){
   document.getElementById('od-f-channel').value='all';
   document.getElementById('od-f-sub').value='all';
   document.getElementById('od-f-sub').style.display='none';
-  document.getElementById('od-f-designer').value='all';
+  document.getElementById('od-f-designer').value=currentDesigner()||'all';
   odFilterUpdate();
 }
 function odLoadOrder(wo){
