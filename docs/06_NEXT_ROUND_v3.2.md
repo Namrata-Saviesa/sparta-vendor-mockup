@@ -3,7 +3,7 @@
 Source: `recommendation.md` + `Sparta_Requirements_Mapping.md` (the 23-line `Sparta.xlsx` mapping). Nothing here needs a new nav screen — everything fits into existing screens, Masters tiles, or Reports cards. The nav was deliberately trimmed in earlier rounds; **keep it trimmed.**
 
 ## Recommended build order
-1. **Rebuild Priority Control** to the 4-lane model + CP override; cascade labels to Station Scan. *(Fixes the known inconsistency; satisfies row 22.)*
+1. ✅ **Rebuild Priority Control** to the 4-lane model + CP override; cascade labels to Station Scan. *(Implemented in the v3.2 mockup round; fixes the known inconsistency and satisfies row 22.)*
 2. **OTIF trend widget** per Anand's comment (row 5) — Overall / B2C / B2B, Apr–Jun avg + current month. No store-level.
 3. Row 4 — **Designer "all my ongoing jobs" worklist** (`s-oroute`).
 4. Row 18 — **≥90% job-bank chaser → 5-day dispatch planner** (`s-dash` widget).
@@ -62,7 +62,7 @@ Source: `recommendation.md` + `Sparta_Requirements_Mapping.md` (the 23-line `Spa
 | 19 | Offcut rack/shelf barcode store | 🔴 | `s-mast` new tile + modal |
 | 20 | Offcut in-vs-used, ageing, compliance | 🔴 | `s-rep` new category (2 cards) |
 | 21 | Offcut scrap-size threshold | 🔴 | Offcut master config table |
-| 22 | 4-tier Job Flow Priority + CP override | 🟡 | `s-prio` full rebuild |
+| 22 | 4-tier Job Flow Priority + CP override | ✅ | `s-prio` full rebuild completed |
 | 23 | Report scheduler → designer routing | 🟡 | `s-cron` routing section |
 | 24 | Date revision count + auto-notify | 🟡 | `s-dash` KPI + note, `s-rep` card |
 

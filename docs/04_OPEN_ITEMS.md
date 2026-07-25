@@ -3,8 +3,8 @@
 Carried in the live `Handover.md` §5. Reconstructed here; **confirm against the live file**, which is authoritative.
 
 ## Must-fix / decisions needed
-- [ ] **Rebuild Priority Control (screen #10)** to the 4-tier Job Flow Priority model + critical-path override; cascade labels into Station Scan. *(Handover §4.10 — highest priority.)*
-- [ ] **Confirm "Misc outranks Tatkal"** ordering — conflicts with Misc = "uncategorised exceptions pending owner assignment." Needs written sign-off before implementing.
+- [x] **Rebuild Priority Control (screen #10)** to the 4-tier Job Flow Priority model + critical-path override; cascade labels into Station Scan. *(Implemented in v3.2 mockup round.)*
+- [x] **Confirm "Misc outranks Tatkal"** ordering — confirmed by Anand; Misc remains the highest priority tier.
 - [ ] **Resolve the week-basis inconsistency** — Bottleneck heatmap = 7-day/700% vs Station Load = 6-day/600%. Pick one before vendors code two definitions.
 
 ## Users & Roles (from v3.1)

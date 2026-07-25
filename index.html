@@ -899,7 +899,7 @@ body.locked .gate{display:flex}
       <div class="step"><span class="st">Assembly</span><span class="tm">plan 20 Jul</span></div>
       <div class="step"><span class="st">Packing</span><span class="tm">plan 22 Jul</span></div>
     </div>
-    <div class="warnbox"><b>Delay reason chain (auto):</b> Glass wrong → material shortage marked 11 Jul (Logic I) → line ECD 23 Jul → order ECD 23 Jul (Logic B) → contingency 2d breached (Logic D) → status Delayed (Logic E) → priority score 71→82 (Logic F).</div>
+    <div class="warnbox"><b>Delay reason chain (auto):</b> Glass wrong → material shortage marked 11 Jul (Logic I) → line ECD 23 Jul → order ECD 23 Jul (Logic B) → contingency 2d breached (Logic D) → status Delayed (Logic E) → priority category reviewed by Logic F.</div>
   </div>
 </section>
 
@@ -950,7 +950,7 @@ body.locked .gate{display:flex}
         <label style="display:flex;gap:6px;align-items:center;font-size:12px;font-weight:700"><input type="checkbox" id="ot-half-on" onchange="otExclusive('half')"> Half Day</label>
         <span class="note" style="font-size:10px;max-width:160px;line-height:1.3">Station runs 4h instead of 8h that day — capacity is halved, not added</span>
       </div>
-      <button class="btn primary" onclick="alert('Change applied → FULL PPC RECALCULATION (Trigger T13):\n• station capacity for the day = 8h ± Hourly OT, or 4h if Half Day\n• queue automatically re-sequenced by priority for the new capacity\n• every affected line ECD, order ECD, CPM buffer, risk status, priority score and the machine-day plans are recalculated\n• Worker efficiency (attendance minutes) and Supervisor efficiency (weighted std-hrs) for the day are recalculated on the Reports screen — Half Day reduces the attendance-minutes baseline, which lowers achievable output for that day\n• audit entry: who approved it, station, date, type (Hourly OT / Half Day), hours.')">Apply &amp; recalculate</button>
+      <button class="btn primary" onclick="alert('Change applied → FULL PPC RECALCULATION (Trigger T13):\n• station capacity for the day = 8h ± Hourly OT, or 4h if Half Day\n• queue automatically re-sequenced by priority for the new capacity\n• every affected line ECD, order ECD, CPM buffer, risk status, priority category and the machine-day plans are recalculated\n• Worker efficiency (attendance minutes) and Supervisor efficiency (weighted std-hrs) for the day are recalculated on the Reports screen — Half Day reduces the attendance-minutes baseline, which lowers achievable output for that day\n• audit entry: who approved it, station, date, type (Hourly OT / Half Day), hours.')">Apply &amp; recalculate</button>
     </div>
     <div class="warnbox" style="margin-top:10px" id="ot-impact"></div>
     <div class="note" style="margin-top:6px">Hourly OT and Half Day are separate, independent controls — only one applies to a station on a given day (ticking one clears the other). <b>Half Day</b> means the station is only available for 4 of its standard 8 hours that day (e.g. planned shutdown, power cut, partial shift) — capacity for the day is <b>halved, not added</b>, so load % rises accordingly and that day's <b>Worker efficiency</b> and <b>Supervisor efficiency (weighted)</b> figures are computed against the reduced 4h baseline, not the full 8h day — see Reports.</div>
@@ -982,6 +982,31 @@ body.locked .gate{display:flex}
 
 <!-- ============ E. PRIORITY CONTROL ============ -->
 <section class="screen" id="s-prio">
+  <div class="card" style="margin-bottom:14px;padding:10px 16px"><span class="note"><b>Job Flow Priority:</b> Anand confirmed the category order as <b>1 Misc -> 2 Tatkal -> 3 High Priority -> 4 Normal</b>. Within each lane, <b>CP</b> means the order is on its current critical path and moves ahead of non-CP orders in the same lane. No numeric weights are used.</span></div>
+  <div class="grid g4">
+    <div class="lane"><h4>1 Misc <span class="mono">exceptions first</span></h4>
+      <div class="pcard" style="border-left-color:var(--crit)"><div class="t"><span class="wo">0134B</span><span class="chip c-crit">CP</span></div><div class="note">Saakshi Construction - missing panels at Packing - owner assignment pending</div></div>
+      <div class="pcard" style="border-left-color:var(--late)"><div class="t"><span class="wo">0320C</span><span class="gap neg">-4d</span></div><div class="note">North East Trade - AL shade rejection re-make - quality owner needed</div></div>
+      <div class="pcard" style="border-left-color:var(--watch)"><div class="t"><span class="wo">0455</span><span class="chip c-watch">Hold</span></div><div class="note">Saviesa Projects - painted glass damage at packing scan</div></div>
+    </div>
+    <div class="lane"><h4>2 Tatkal <span class="mono">rush orders</span></h4>
+      <div class="pcard" style="border-left-color:var(--late)"><div class="t"><span class="wo">0374</span><span class="chip c-crit">CP</span></div><div class="note">Priyanshu Gurav - Rupal glass wait is the rate-determining step</div></div>
+      <div class="pcard" style="border-left-color:var(--risk)"><div class="t"><span class="wo">0503</span><span class="gap neg">-4d</span></div><div class="note">A. R. Hirlekar - urgent site handover - PU shutter balance</div></div>
+      <div class="pcard" style="border-left-color:var(--watch)"><div class="t"><span class="wo">0407</span><span class="gap neg">-2d</span></div><div class="note">Pune Retail - hooks pending 17 Jul</div></div>
+    </div>
+    <div class="lane"><h4>3 High Priority <span class="mono">risk / low buffer</span></h4>
+      <div class="pcard" style="border-left-color:var(--risk)"><div class="t"><span class="wo">0469B</span><span class="chip c-crit">CP</span></div><div class="note">Premier Adhesive - Alfa profile path has zero buffer</div></div>
+      <div class="pcard" style="border-left-color:var(--watch)"><div class="t"><span class="wo">0428B</span><span class="gap pos">+2d</span></div><div class="note">GTM Networks - Beam Saw balance tomorrow AM</div></div>
+      <div class="pcard" style="border-left-color:var(--info)"><div class="t"><span class="wo">0505A</span><span class="chip c-info">Override</span></div><div class="note">Manager override: held for site readiness, keep visible in audit</div></div>
+    </div>
+    <div class="lane"><h4>4 Normal <span class="mono">buffered</span></h4>
+      <div class="pcard" style="border-left-color:var(--ok)"><div class="t"><span class="wo">0525</span><span class="gap pos">+7d</span></div><div class="note">Hirlekar Dressing & COD - healthy buffer</div></div>
+      <div class="pcard"><div class="t"><span class="wo">0518A</span><span class="gap pos">+9d</span></div><div class="note">Hirlekar Sliding WR - route skip pending approval</div></div>
+      <div class="pcard" style="border-left-color:var(--info)"><div class="t"><span class="wo">0527A</span><span class="chip c-info">CP</span></div><div class="note">Showroom Acrylic Fixtures - CP within Normal, but still below lanes 1-3</div></div>
+    </div>
+  </div>
+  <div class="warnbox" style="margin-top:14px"><b>Sequencing rule:</b> finish all Misc before Tatkal, all Tatkal before High Priority, and all High Priority before Normal. Critical-path override only changes order <b>inside</b> the same lane; it does not jump a lower lane above a higher lane.</div>
+  <div style="display:none">
   <div class="card" style="margin-bottom:14px;padding:10px 16px"><span class="note"><b>Two working bands (management decision):</b> orders <b>delayed vs Committed</b> (or with buffer under threshold) → <b>High</b> · orders comfortably ahead → <b>Normal</b>. Days shown = Sparta ECD − Committed (negative = delayed).</span></div>
   <div class="grid g2">
     <div class="lane"><h4>High <span class="mono">delayed / at risk</span></h4>
@@ -997,6 +1022,7 @@ body.locked .gate{display:flex}
       <div class="pcard"><div class="t"><span class="wo">0518A</span><span class="gap pos">+9d</span></div><div class="note">Hirlekar Sliding WR</div></div>
       <div class="pcard" style="border-left-color:var(--info)"><div class="t"><span class="wo">0505A</span><span class="gap neg" style="color:var(--info);background:var(--info-soft)">−1d→+3d ⚑</span></div><div class="note"><b>Manager override to Normal:</b> held for site readiness</div></div>
     </div>
+  </div>
   </div>
 </section>
 
@@ -1056,10 +1082,10 @@ body.locked .gate{display:flex}
     <div class="card">
       <h3>My station queue — Edge Band EB-1 <span class="chip c-late">Bottleneck 118%</span></h3>
       <table><thead><tr><th>Seq</th><th>WO</th><th>Line</th><th>Qty</th><th>Priority</th><th>Committed</th></tr></thead><tbody>
-        <tr class="row r-crit"><td class="mono">1</td><td class="wo">0134B</td><td>4SEB Postlam (missing 3)</td><td class="mono">3</td><td><span class="chip c-late">High 95</span></td><td class="dt">10 Jul ⚠</td></tr>
-        <tr class="row r-late"><td class="mono">2</td><td class="wo">0503</td><td>4SEB Postlam balance</td><td class="mono">12</td><td><span class="chip c-late">High 88</span></td><td class="dt">16 Jul</td></tr>
-        <tr class="row r-watch"><td class="mono">3</td><td class="wo">0428B</td><td>4SEB re-cut</td><td class="mono">1</td><td><span class="chip c-grey">Normal 58</span></td><td class="dt">22 Jul</td></tr>
-        <tr class="row r-ok"><td class="mono">4</td><td class="wo">0525</td><td>Dressing carcass</td><td class="mono">28</td><td><span class="chip c-grey">Normal 41</span></td><td class="dt">28 Jul</td></tr>
+        <tr class="row r-crit"><td class="mono">1</td><td class="wo">0134B</td><td>4SEB Postlam (missing 3)</td><td class="mono">3</td><td><span class="chip c-crit">Misc · CP</span></td><td class="dt">10 Jul ⚠</td></tr>
+        <tr class="row r-late"><td class="mono">2</td><td class="wo">0503</td><td>4SEB Postlam balance</td><td class="mono">12</td><td><span class="chip c-late">Tatkal</span></td><td class="dt">16 Jul</td></tr>
+        <tr class="row r-watch"><td class="mono">3</td><td class="wo">0428B</td><td>4SEB re-cut</td><td class="mono">1</td><td><span class="chip c-watch">High Priority</span></td><td class="dt">22 Jul</td></tr>
+        <tr class="row r-ok"><td class="mono">4</td><td class="wo">0525</td><td>Dressing carcass</td><td class="mono">28</td><td><span class="chip c-grey">Normal</span></td><td class="dt">28 Jul</td></tr>
       </tbody></table>
       <div class="note" style="margin-top:8px">Queue is priority-sequenced by the engine. Every scan here is a recalculation trigger (T5) — the plan, ECDs and dashboards update within seconds. Offline scans queue on the device and sync automatically.</div>
     </div>
@@ -1158,7 +1184,7 @@ body.locked .gate{display:flex}
     </div>
     <div class="card"><h3>Governance</h3>
       <div class="repcard"><div><b>Manual override audit report</b><div class="note">Old/new value, reason, approver, stamp</div></div><button class="btn">Excel ↓</button></div>
-      <div class="repcard"><div><b>Priority score report</b><div class="note">System vs approved movements</div></div><button class="btn">Excel ↓</button></div>
+      <div class="repcard"><div><b>Priority movement report</b><div class="note">System category, CP flag and approved movements</div></div><button class="btn">Excel ↓</button></div>
       <div class="repcard"><div><b>Smartsheet-shaped export</b><div class="note">Legacy view for transition period only</div></div><button class="btn">Excel ↓</button></div>
     </div>
     <div class="card"><h3>Trend analysis</h3>
@@ -1319,7 +1345,7 @@ proc:['Process Routes','Complete catalog · 140 processes · 10 colour-coded rou
 oroute:['Order Route & Days — WO 0428B','Processes triggered → machines assigned → day-wise plan on the working calendar'],
 order:['Order Detail — WO 0374','Product & panel status · actual scans · delay reason chain'],
 load:['Station Load','Andon view · Logic G/H · capacity from masters, WIP from live scans'],
-prio:['Priority Control','System-suggested vs manager-approved · delayed days, High/Normal bands'],
+prio:['Priority Control','Four-tier Job Flow Priority · CP override · manager approvals'],
 pack:['Packing Station — Operator','Big-button scan UI · reconciliation drives dispatch date (Logic K)'],
 rep:['Reports','All exportable: Excel · PDF · API · SAP'],
 scan:['Station Scan — Operator','Start/stop scans, partial qty, rework, hold — feeds every PPC calculation'],

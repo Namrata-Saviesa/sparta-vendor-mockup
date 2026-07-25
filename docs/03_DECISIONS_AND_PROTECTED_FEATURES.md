@@ -34,8 +34,8 @@ This is the "**inputs given over the versions**" file — the accumulated ruling
 
 ## C. Priority model (current definition)
 Four-tier **Job Flow Priority**: **1 Misc → 2 Tatkal → 3 High Priority → 4 Normal**, with a **critical-path override** inside each tier. No weights.
-- ⚠️ **Known contradiction:** the **Priority Control screen (#10)** still shows the old **two-band High/Normal** board. It must be rebuilt to the 4-tier model, and the 4-tier labels cascaded into the Station Scan queue's Priority column. This is the **#1 fix** for v3.2.
-- ⚠️ **Needs written sign-off:** ranking **Misc above Tatkal** conflicts with Misc being defined elsewhere as "uncategorised exceptions pending owner assignment." Get explicit approval; do not silently implement.
+- ✅ **v3.2 implemented in mockup:** the **Priority Control screen (#10)** has been rebuilt from the old **two-band High/Normal** board to the 4-tier model, and the 4-tier labels have been cascaded into the Station Scan queue's Priority column.
+- ✅ **Confirmed by Anand:** ranking **Misc above Tatkal** is intentional. Keep Misc as the highest priority tier.
 
 ## D. Users & Roles rulings (v3.1)
 - **68 users**, emails on **name@saviesahome.com**.
