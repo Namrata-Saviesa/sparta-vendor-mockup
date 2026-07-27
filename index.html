@@ -258,6 +258,16 @@ tr.rm-sec .seccount{font-family:var(--body);font-size:10px;font-weight:600;text-
 .scard h4{font-family:var(--disp);font-size:15px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
 .dchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .dchip{font-family:var(--mono);font-size:9.5px;background:#eceee9;border-radius:10px;padding:3px 8px;color:var(--ink);white-space:nowrap}
+.accesswrap{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:9px;background:#fff}
+.accessmatrix{min-width:1120px;border-collapse:separate;border-spacing:0}
+.accessmatrix th,.accessmatrix td{font-size:10.5px;text-align:center;padding:8px 7px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:middle}
+.accessmatrix th{position:sticky;top:0;background:#f7f8f5;z-index:1;font-family:var(--disp);font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#4c5561}
+.accessmatrix th:first-child,.accessmatrix td:first-child{position:sticky;left:0;text-align:left;background:#fff;z-index:2;min-width:190px}
+.accessmatrix th:first-child{background:#f7f8f5;z-index:3}
+.accessmatrix .role{font-weight:800;color:var(--ink)}
+.accessmatrix .scope{display:block;font-weight:500;color:var(--grey);font-size:9.5px;line-height:1.25;margin-top:2px}
+.accessmatrix .yes{font-weight:900;color:var(--ok);font-size:15px}
+.accessmatrix .no{color:#c0c4bd}
 .gate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#14171b;color:#fff;padding:22px;z-index:9999}
 body.locked .gate{display:flex}
 .gate-card{width:min(420px,100%);background:#fff;color:var(--ink);border-radius:10px;padding:26px;border-top:5px solid var(--orange);box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -1304,6 +1314,7 @@ body.locked .gate{display:flex}
     <div class="utabs">
       <button class="on" data-ut="dir" onclick="showUTab('dir')">Directory</button>
       <button data-ut="map" onclick="showUTab('map')">Visibility map</button>
+      <button data-ut="access" onclick="showUTab('access')">Page Access</button>
       <button data-ut="floor" onclick="showUTab('floor')">Floor operators</button>
     </div>
 
@@ -1334,6 +1345,11 @@ body.locked .gate{display:flex}
         <div>• AI / AID / Pune heads see every order belonging to the designers under them, in addition to their own.</div>
         <div>• Monesh (B2C Head) is the one cross-channel exception — alongside all B2C orders, he also sees <b>all B2B orders</b>, read-only.</div>
       </div>
+    </div>
+
+    <div class="upanel" id="ut-access">
+      <div class="note" style="margin-bottom:10px">Screen-level visibility matrix for each login role. Actual order rows are still filtered by channel, sub-team, designer, station or function scope.</div>
+      <div class="accesswrap" id="u-access-matrix"></div>
     </div>
 
     <div class="upanel" id="ut-floor">
@@ -2420,9 +2436,38 @@ function renderOrgFloor(){
   const rows=USERS.filter(u=>u.group==='floor'||u.group==='supervisor');
   document.getElementById('u-floorgrid').innerHTML=rows.map(u=>'<div class="mtile"><b>'+u.name+'</b><div class="note">'+u.role+' · '+u.scope+'</div><div class="dchips"><span class="dchip">'+u.email+'</span></div></div>').join('');
 }
+const ACCESS_PAGE_LABELS={
+  dash:'PPC',rm:'RM',po:'PO',rej:'Reject',plan:'Planning',proc:'Routes',
+  oroute:'Route & Days',order:'Order Detail',load:'Load',prio:'Priority',
+  scan:'Scan',pack:'Packing',mast:'Masters',cron:'Scheduler',rep:'Reports'
+};
+const PAGE_ACCESS_ROLES=[
+  {role:'Full Admin / Management',scope:'Rajesh, Monesh, Mary, Anand, Mangesh, Namrata',pages:ALL_PAGES},
+  {role:'PPC / Planning',scope:'Amir; full admins also inherit this access',pages:PPC_PAGES},
+  {role:'B2C AI Head',scope:'Harsha; AI B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'B2C AID Head',scope:'Bharti; AID/Retail/DL B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'B2C Pune Head',scope:'Amarkant / Rachana; Pune B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'B2C Designer',scope:'Own B2C orders only',pages:['oroute','order']},
+  {role:'Purchase',scope:'RM, PO and vendor-linked reports',pages:['rm','po','rep']},
+  {role:'Production / Factory',scope:'Production work and route context',pages:['oroute','order','load','scan','pack','rep']},
+  {role:'Supervisor',scope:'Own station group',pages:['oroute','order','load','scan','pack']},
+  {role:'Operator',scope:'Own station queue only',pages:['scan','pack']},
+  {role:'Dispatch / Logistics',scope:'Packing and dispatch follow-up',pages:['pack','order','rep']},
+  {role:'Org chart only',scope:'Marketing, HR, finance, SEO, social media, customer care',pages:[]}
+];
+function renderAccessMatrix(){
+  const cols=ALL_PAGES;
+  const head='<thead><tr><th>Role</th>'+cols.map(k=>'<th>'+ACCESS_PAGE_LABELS[k]+'</th>').join('')+'</tr></thead>';
+  const body='<tbody>'+PAGE_ACCESS_ROLES.map(r=>{
+    const set=new Set(r.pages);
+    return '<tr><td><span class="role">'+r.role+'</span><span class="scope">'+r.scope+'</span></td>'
+      +cols.map(k=>set.has(k)?'<td class="yes">✓</td>':'<td class="no">-</td>').join('')+'</tr>';
+  }).join('')+'</tbody>';
+  document.getElementById('u-access-matrix').innerHTML='<table class="accessmatrix">'+head+body+'</table>';
+}
 let usersInit=false;
 function openUsersConfig(){
-  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderOrgRoleMap();renderOrgFloor();usersInit=true;}
+  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderOrgRoleMap();renderOrgFloor();renderAccessMatrix();usersInit=true;}
   document.getElementById('usersmodal').classList.add('on');
 }
 function closeUsersConfig(){document.getElementById('usersmodal').classList.remove('on');}
