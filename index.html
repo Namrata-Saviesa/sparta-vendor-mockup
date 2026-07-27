@@ -302,7 +302,10 @@ body.locked .gate{display:flex}
         <option value="ppc-amir">PPC / Planning - Amir</option>
         <option value="designer-rohan">Designer - Ar. Rohan Bhide</option>
         <option value="b2c-ai-harsha">B2C AI - Harsha</option>
+        <option value="b2c-ai-vrinda">B2C AI - Vrinda</option>
         <option value="b2c-aid-bharti">B2C AID - Bharti</option>
+        <option value="b2c-aid-sakshi">AID-walkin - Sakshi</option>
+        <option value="b2c-aid-dl">AID-DL Manager</option>
         <option value="b2c-pune-rachana">B2C Pune - Rachana</option>
         <option value="purchase-santosh">Purchase - Santosh</option>
         <option value="production-avan">Production - Avan</option>
@@ -1397,7 +1400,10 @@ const roleProfiles={
   'ppc-amir':{name:'Amir',label:'PPC / Planning',designer:null,channel:null,pages:PPC_PAGES,hint:'PPC / Planning access: planning, priority, route, load and reports for all orders.'},
   'designer-rohan':{name:'Ar. Rohan Bhide',label:'Designer',designer:'Ar. Rohan Bhide',channel:'B2C',pages:['oroute','order'],hint:'Designer access: B2C only, own orders only, Order Route & Days and Order Detail.'},
   'b2c-ai-harsha':{name:'Harsha',label:'B2C AI Head',designer:null,channel:'B2C',sub:'AI',pages:['oroute','order','rej','rep'],hint:'B2C AI access: AI team B2C orders, order tracking, rejections and reports.'},
+  'b2c-ai-vrinda':{name:'Vrinda',label:'B2C AI Manager',designer:null,channel:'B2C',sub:'AI',teamDesigners:['Varun','Nivya'],pages:['oroute','order','rej','rep'],hint:'B2C AI-Vrinda access: only orders for Varun and Nivya.'},
   'b2c-aid-bharti':{name:'Bharti',label:'B2C AID Head',designer:null,channel:'B2C',sub:'AID',pages:['oroute','order','rej','rep'],hint:'B2C AID access: AID/Retail/DL team B2C orders, order tracking, rejections and reports.'},
+  'b2c-aid-sakshi':{name:'Sakshi',label:'AID-walkin Manager',designer:null,channel:'B2C',sub:'AID',teamDesigners:['Usha','Aishwarya','Ashmi','Krish'],pages:['oroute','order','rej','rep'],hint:'AID-walkin access: only orders for Usha, Aishwarya, Ashmi and Krish.'},
+  'b2c-aid-dl':{name:'DL Manager',label:'AID-DL Manager',designer:null,channel:'B2C',sub:'AID',teamDesigners:['Ravi','Jennifer','Shruti','Siddhesh'],pages:['oroute','order','rej','rep'],hint:'AID-DL access: only orders for Ravi, Jennifer, Shruti and Siddhesh.'},
   'b2c-pune-rachana':{name:'Rachana',label:'B2C Pune Head',designer:null,channel:'B2C',sub:'Pune',pages:['oroute','order','rej','rep'],hint:'B2C Pune access: Pune team B2C orders, order tracking, rejections and reports.'},
   'purchase-santosh':{name:'Santosh',label:'Purchase',designer:null,channel:null,pages:['rm','po','rep'],hint:'Purchase access: RM Dashboard, PO Dashboard and purchase-linked reports.'},
   'production-avan':{name:'Avan',label:'Production',designer:null,channel:null,pages:['oroute','order','load','scan','pack','rep'],hint:'Production access: route/load/floor execution screens and production reports.'},
@@ -1409,11 +1415,13 @@ let currentRole='admin-namrata';
 function currentDesigner(){return roleProfiles[currentRole].designer;}
 function currentChannelScope(){return roleProfiles[currentRole].channel;}
 function currentSubScope(){return roleProfiles[currentRole].sub;}
+function currentTeamDesigners(){return roleProfiles[currentRole].teamDesigners||null;}
 function roleAllowsOrder(o){
-  const ds=currentDesigner(),ch=currentChannelScope(),sub=currentSubScope();
+  const ds=currentDesigner(),ch=currentChannelScope(),sub=currentSubScope(),team=currentTeamDesigners();
   if(ds&&o.designer!==ds)return false;
   if(ch&&o.channel!==ch)return false;
   if(sub&&o.sub!==sub)return false;
+  if(team&&!team.includes(o.designer))return false;
   return true;
 }
 function applyRole(role){
@@ -1949,6 +1957,12 @@ document.querySelectorAll('#s-rej .card h3').forEach(h=>{if(h.closest('#rej-orde
 const orRouteOrders=[
   {wo:'0428B',client:'GTM Networks',project:'Gaurav Seth Kitchen',channel:'B2B',sub:'',designer:'Ar. Priya Menon'},
   {wo:'0374',client:'Priyanshu Gurav',project:'Family Room Sliding Door',channel:'B2C',sub:'AI',designer:'Ar. Rohan Bhide'},
+  {wo:'0411AI',client:'Vrinda AI Lead',project:'Sliding Wardrobe',channel:'B2C',sub:'AI',designer:'Nivya'},
+  {wo:'0412AI',client:'AI Architect Lead',project:'Display Kitchen',channel:'B2C',sub:'AI',designer:'Varun'},
+  {wo:'0471W',client:'Andheri Walkin',project:'Retail Kitchen',channel:'B2C',sub:'AID',designer:'Usha'},
+  {wo:'0472W',client:'Retail Store Walkin',project:'Bedroom Wardrobe',channel:'B2C',sub:'AID',designer:'Aishwarya'},
+  {wo:'0473DL',client:'Digital Lead - Bandra',project:'Sliding Door Set',channel:'B2C',sub:'AID',designer:'Jennifer'},
+  {wo:'0474DL',client:'Digital Lead - Thane',project:'Kitchen Refresh',channel:'B2C',sub:'AID',designer:'Siddhesh'},
   {wo:'0602P',client:'Koregaon Park Residence',project:'Wardrobe Display Unit',channel:'B2C',sub:'Pune',designer:'Aditi'},
   {wo:'0503',client:'A. R. Hirlekar',project:'Hirlekar Residence — Interiors',channel:'B2C',sub:'AID',designer:'Ar. Neha Kulkarni'},
   {wo:'0134B',client:'Saakshi Construction',project:'Kitchens Flat 703–901',channel:'B2B',sub:'',designer:'Ar. Deepak Shah'}
@@ -2191,8 +2205,8 @@ const masterData={
     body:'<div class="scopewrap">'
     +'<div class="scard"><h4>Board / Full Admin</h4><div class="note">Rajesh, Monesh, Mary, Anand Laghate, Mangesh, Namrata</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> all pages, all B2B and B2C orders, Masters &amp; Config.</div></div>'
     +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Amir</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> planning dashboards, route, load, priority and reports for all orders. Full admins can also see these screens through admin access.</div></div>'
-    +'<div class="scard"><h4>B2C AI - Harsha</h4><div class="note">Managers/team: Harsha, Vrinda. Designers: Prasad, Riya, Nivya, Rakesh, Generic AI Designer 1, Generic AI Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AI B2C team orders for heads/managers; own AI B2C orders for designers.</div></div>'
-    +'<div class="scard"><h4>B2C AID / Retail / DL - Bharti</h4><div class="note">Managers/team: Bharti, Sakshi, Ravi. Designers: Usha, Shruti, Krish, Jennifer, Aishwarya, Ashmi, Roopali, Anil, Rohit, Generic AID Designer 1, Generic AID Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AID/Retail/DL B2C team orders for heads/managers; own AID B2C orders for designers.</div></div>'
+    +'<div class="scard"><h4>B2C AI - Harsha</h4><div class="note">Harsha sees all AI B2C orders. Vrinda sees her AI subgroup only: Varun and Nivya.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AI B2C team orders for Harsha; subgroup orders for Vrinda; own AI B2C orders for designers.</div></div>'
+    +'<div class="scard"><h4>B2C AID - Bharti</h4><div class="note">Bharti sees all AID B2C orders. Sakshi sees AID-walkin only: Usha, Aishwarya, Ashmi, Krish. DL Manager sees AID-DL only: Ravi, Jennifer, Shruti, Siddhesh.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> AID team orders for Bharti; subgroup orders for Sakshi and DL manager; own AID B2C orders for designers.</div></div>'
     +'<div class="scard"><h4>B2C Pune - Amarkant / Rachana</h4><div class="note">Managers/team: Amarkant, Rachana. Designers: Mrinal, Aditi, Shruti Nale, Shital, Shubham, Generic Pune Designer 1, Generic Pune Designer 2.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> Pune B2C team orders for heads/managers; own Pune B2C orders for designers.</div></div>'
     +'<div class="scard"><h4>Purchase</h4><div class="note">Santosh Yadav, Zubair, Sandeep, Pravin</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> RM Dashboard, PO Dashboard and purchase reports.</div></div>'
     +'<div class="scard"><h4>Production / Factory</h4><div class="note">Avan, Prashant, Amir, Pratish, Sachin, Suhas, Thapa plus generic workers/operators.</div><div class="note" style="margin-top:6px"><b>Dashboard scope:</b> station load, scan, packing, route context and production reports.</div></div>'
@@ -2278,7 +2292,9 @@ STATIONS.forEach(([st,n])=>{
 
 Object.assign(GROUPS,{
   admin:['','Full Admin / Management'], ppc:['','PPC / Planning'], b2c:['','B2C Heads & Managers'],
-  b2c_ai:['','B2C AI - Harsha'], b2c_aid:['','B2C AID - Bharti'], b2c_pune:['','B2C Pune - Amarkant/Rachana'],
+  b2c_ai:['','B2C AI - Harsha'], b2c_ai_vrinda:['','B2C AI - Vrinda subgroup'],
+  b2c_aid:['','B2C AID - Bharti'], b2c_aid_walkin:['','AID-walkin - Sakshi'], b2c_aid_dl:['','AID-DL Manager'],
+  b2c_pune:['','B2C Pune - Amarkant/Rachana'],
   design:['','B2C Designers'], purchase:['','Purchase'], production:['','Production / Factory'],
   supervisor:['','Supervisors'], dispatch:['','Dispatch / Logistics'], floor:['','Floor operators'],
   chartonly:['','Org chart only']
@@ -2294,10 +2310,10 @@ USERS.length=0;
   ['Mary','mary','Full Admin / Management','admin','rwe','All pages, all B2B and B2C orders'],
   ['Amir','amir','PPC / Planning','ppc','rw','All planning screens and all orders'],
   ['Harsha','harsha','B2C AI Head','b2c_ai','view','AI B2C team orders'],
-  ['Vrinda','vrinda','B2C AI Manager','b2c_ai','view','AI B2C team orders'],
+  ['Vrinda','vrinda','B2C AI Manager','b2c_ai_vrinda','view','AI subgroup orders: Varun, Nivya'],
   ['Bharti','bharti','B2C AID Head','b2c_aid','view','AID/Retail/DL B2C team orders'],
-  ['Sakshi','sakshi','B2C AID Manager','b2c_aid','view','AID/Retail B2C team orders'],
-  ['Ravi','ravi','B2C DL Manager','b2c_aid','view','DL B2C team orders'],
+  ['Sakshi','sakshi','AID-walkin Manager','b2c_aid_walkin','view','AID-walkin orders: Usha, Aishwarya, Ashmi, Krish'],
+  ['DL Manager','dl.manager','AID-DL Manager','b2c_aid_dl','view','AID-DL orders: Ravi, Jennifer, Shruti, Siddhesh'],
   ['Amarkant','amarkant','B2C Pune Head','b2c_pune','view','Pune B2C team orders'],
   ['Rachana','rachana','B2C Pune Head','b2c_pune','view','Pune B2C team orders'],
   ['Santosh Yadav','santosh','Purchase','purchase','view','RM, PO and vendor-linked reports'],
@@ -2317,16 +2333,19 @@ USERS.length=0;
 [
   ['Prasad','B2C AI Designer','b2c_ai','AI B2C own orders only'],
   ['Riya','B2C AI Designer','b2c_ai','AI B2C own orders only'],
-  ['Nivya','B2C AI Designer','b2c_ai','AI B2C own orders only'],
+  ['Nivya','B2C AI Designer','b2c_ai_vrinda','AI-Vrinda own orders only'],
+  ['Varun','B2C AI Designer','b2c_ai_vrinda','AI-Vrinda own orders only'],
   ['Rakesh Designer','B2C AI Designer','b2c_ai','AI B2C own orders only'],
   ['Generic AI Designer 1','B2C AI Designer','b2c_ai','AI B2C own orders only'],
   ['Generic AI Designer 2','B2C AI Designer','b2c_ai','AI B2C own orders only'],
-  ['Usha','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
-  ['Shruti','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
-  ['Krish','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
-  ['Jennifer','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
-  ['Aishwarya','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
-  ['Ashmi','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
+  ['Usha','B2C AID-walkin Designer','b2c_aid_walkin','AID-walkin own orders only'],
+  ['Krish','B2C AID-walkin Designer','b2c_aid_walkin','AID-walkin own orders only'],
+  ['Aishwarya','B2C AID-walkin Designer','b2c_aid_walkin','AID-walkin own orders only'],
+  ['Ashmi','B2C AID-walkin Designer','b2c_aid_walkin','AID-walkin own orders only'],
+  ['Ravi','B2C AID-DL Designer','b2c_aid_dl','AID-DL own orders only'],
+  ['Jennifer','B2C AID-DL Designer','b2c_aid_dl','AID-DL own orders only'],
+  ['Shruti','B2C AID-DL Designer','b2c_aid_dl','AID-DL own orders only'],
+  ['Siddhesh','B2C AID-DL Designer','b2c_aid_dl','AID-DL own orders only'],
   ['Roopali','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
   ['Anil','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
   ['Rohit','B2C AID Designer','b2c_aid','AID/Retail/DL B2C own orders only'],
@@ -2422,15 +2441,15 @@ function renderOrgRoleMap(){
   document.getElementById('ut-map-cards').innerHTML=
     '<div class="scard"><h4>Full Admin / Management</h4><div class="note">All pages, all B2B and B2C orders, Masters &amp; Config.</div><div class="dchips">'+chips('admin')+'</div></div>'
     +'<div class="scard"><h4>PPC / Planning</h4><div class="note">Planning dashboards, route, load, priority and reports for all orders.</div><div class="dchips">'+chips('ppc')+'</div></div>'
-    +'<div class="scard"><h4>B2C AI - Harsha</h4><div class="note">Harsha manages AI. Designers see AI B2C own orders only.</div><div class="dchips">'+chips('b2c_ai')+'</div></div>'
-    +'<div class="scard"><h4>B2C AID - Bharti</h4><div class="note">Bharti manages AID/Retail/DL. Designers see AID B2C own orders only.</div><div class="dchips">'+chips('b2c_aid')+'</div></div>'
+    +'<div class="scard"><h4>B2C AI - Harsha</h4><div class="note">Harsha sees all AI. Vrinda sees AI-Vrinda subgroup only.</div><div class="dchips">'+chips('b2c_ai')+chips('b2c_ai_vrinda')+'</div></div>'
+    +'<div class="scard"><h4>B2C AID - Bharti</h4><div class="note">Bharti sees all AID. Sakshi sees AID-walkin. DL Manager sees AID-DL.</div><div class="dchips">'+chips('b2c_aid')+chips('b2c_aid_walkin')+chips('b2c_aid_dl')+'</div></div>'
     +'<div class="scard"><h4>B2C Pune - Amarkant / Rachana</h4><div class="note">Amarkant and Rachana manage Pune. Designers see Pune B2C own orders only.</div><div class="dchips">'+chips('b2c_pune')+'</div></div>'
     +'<div class="scard"><h4>Purchase</h4><div class="note">RM Dashboard, PO Dashboard and purchase-linked reports.</div><div class="dchips">'+chips('purchase')+'</div></div>'
     +'<div class="scard"><h4>Production / Floor</h4><div class="note">Production gets load, scan, packing and route context. Operators are station-scoped.</div><div class="dchips">'+chips('production')+chips('supervisor')+chips('floor')+'</div></div>'
     +'<div class="scard"><h4>Dispatch / Logistics</h4><div class="note">Packing station, order detail and dispatch-linked reports.</div><div class="dchips">'+chips('dispatch')+'</div></div>'
     +'<div class="scard"><h4>Org Chart Only</h4><div class="note">Visible in the master org chart, no dashboard access in this phase.</div><div class="dchips">'+chips('chartonly')+'</div></div>';
   const warn=document.querySelector('#ut-map .warnbox');
-  if(warn)warn.innerHTML='<b>Visibility rules enforced app-wide:</b><div style="margin-top:5px">Designers see only their own B2C orders and cannot switch to B2B.</div><div>B2C heads/managers see B2C orders for their team.</div><div>Marketing, HR, finance, SEO, social media and customer care remain in the master org chart only for this phase.</div>';
+  if(warn)warn.innerHTML='<b>Visibility rules enforced app-wide:</b><div style="margin-top:5px">Designers see only their own B2C orders and cannot switch to B2B.</div><div>Sakshi sees AID-walkin only: Usha, Aishwarya, Ashmi, Krish.</div><div>DL Manager sees AID-DL only: Ravi, Jennifer, Shruti, Siddhesh.</div><div>Vrinda sees AI subgroup only: Varun and Nivya.</div>';
 }
 function renderOrgFloor(){
   const rows=USERS.filter(u=>u.group==='floor'||u.group==='supervisor');
@@ -2444,8 +2463,11 @@ const ACCESS_PAGE_LABELS={
 const PAGE_ACCESS_ROLES=[
   {role:'Full Admin / Management',scope:'Rajesh, Monesh, Mary, Anand, Mangesh, Namrata',pages:ALL_PAGES},
   {role:'PPC / Planning',scope:'Amir; full admins also inherit this access',pages:PPC_PAGES},
-  {role:'B2C AI Head',scope:'Harsha; AI B2C team orders',pages:['oroute','order','rej','rep']},
-  {role:'B2C AID Head',scope:'Bharti; AID/Retail/DL B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'B2C AI Head',scope:'Harsha; all AI B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'B2C AI Manager',scope:'Vrinda; Varun and Nivya only',pages:['oroute','order','rej','rep']},
+  {role:'B2C AID Head',scope:'Bharti; all AID/Retail/DL B2C team orders',pages:['oroute','order','rej','rep']},
+  {role:'AID-walkin Manager',scope:'Sakshi; Usha, Aishwarya, Ashmi, Krish only',pages:['oroute','order','rej','rep']},
+  {role:'AID-DL Manager',scope:'Ravi, Jennifer, Shruti, Siddhesh only',pages:['oroute','order','rej','rep']},
   {role:'B2C Pune Head',scope:'Amarkant / Rachana; Pune B2C team orders',pages:['oroute','order','rej','rep']},
   {role:'B2C Designer',scope:'Own B2C orders only',pages:['oroute','order']},
   {role:'Purchase',scope:'RM, PO and vendor-linked reports',pages:['rm','po','rep']},
