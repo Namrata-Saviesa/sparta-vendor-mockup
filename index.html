@@ -268,6 +268,14 @@ tr.rm-sec .seccount{font-family:var(--body);font-size:10px;font-weight:600;text-
 .accessmatrix .scope{display:block;font-weight:500;color:var(--grey);font-size:9.5px;line-height:1.25;margin-top:2px}
 .accessmatrix .yes{font-weight:900;color:var(--ok);font-size:15px}
 .accessmatrix .no{color:#c0c4bd}
+.scope-lock{border-color:#bfe3c8;background:var(--ok-soft);color:var(--ok);max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.scope-hidden{display:none!important}
+.b2ctree{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.treecard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.treecard h4{font-family:var(--disp);font-size:16px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px}
+.treelevel{border-left:3px solid var(--line);padding-left:10px;margin:8px 0 0 4px}
+.treelevel strong{display:block;font-size:12px;margin-bottom:4px}
+.treelevel .note{margin-bottom:5px}
 .gate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#14171b;color:#fff;padding:22px;z-index:9999}
 body.locked .gate{display:flex}
 .gate-card{width:min(420px,100%);background:#fff;color:var(--ink);border-radius:10px;padding:26px;border-top:5px solid var(--orange);box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -831,6 +839,7 @@ body.locked .gate{display:flex}
       <option value="all">All stores</option><option value="AI">AI</option><option value="AID">AID</option><option value="Pune">Pune</option>
     </select>
     <select id="or-f-designer" class="btn" style="width:140px" onchange="orFilterUpdate()"></select>
+    <span class="chip c-ok scope-lock" id="or-scope-note" style="display:none"></span>
     <button class="btn ghost" style="font-size:11px;white-space:nowrap" onclick="orClearFilters()">✕ Clear filters</button>
     <span class="chip c-grey" id="or-match-count" style="margin-left:auto;white-space:nowrap">4 matches</span>
     <select id="or-f-order" class="btn primary" style="min-width:190px" onchange="orLoadOrder(this.value)"></select>
@@ -893,6 +902,7 @@ body.locked .gate{display:flex}
       <option value="all">All stores</option><option value="AI">AI</option><option value="AID">AID</option><option value="Pune">Pune</option>
     </select>
     <select id="od-f-designer" class="btn" style="width:140px" onchange="odFilterUpdate()"></select>
+    <span class="chip c-ok scope-lock" id="od-scope-note" style="display:none"></span>
     <button class="btn ghost" style="font-size:11px;white-space:nowrap" onclick="odClearFilters()">✕ Clear filters</button>
     <span class="chip c-grey" id="od-match-count" style="margin-left:auto;white-space:nowrap">4 matches</span>
     <select id="od-f-order" class="btn primary" style="min-width:190px" onchange="odLoadOrder(this.value)"></select>
@@ -1317,6 +1327,7 @@ body.locked .gate{display:flex}
     <div class="utabs">
       <button class="on" data-ut="dir" onclick="showUTab('dir')">Directory</button>
       <button data-ut="map" onclick="showUTab('map')">Visibility map</button>
+      <button data-ut="b2ctree" onclick="showUTab('b2ctree')">B2C Tree</button>
       <button data-ut="access" onclick="showUTab('access')">Page Access</button>
       <button data-ut="floor" onclick="showUTab('floor')">Floor operators</button>
     </div>
@@ -1348,6 +1359,11 @@ body.locked .gate{display:flex}
         <div>• AI / AID / Pune heads see every order belonging to the designers under them, in addition to their own.</div>
         <div>• Monesh (B2C Head) is the one cross-channel exception — alongside all B2C orders, he also sees <b>all B2B orders</b>, read-only.</div>
       </div>
+    </div>
+
+    <div class="upanel" id="ut-b2ctree">
+      <div class="note" style="margin-bottom:10px">B2C hierarchy and row visibility. Heads see their full team; subgroup managers see only the listed designers; designers see only their own B2C orders.</div>
+      <div class="b2ctree" id="u-b2c-tree"></div>
     </div>
 
     <div class="upanel" id="ut-access">
@@ -1416,6 +1432,28 @@ function currentDesigner(){return roleProfiles[currentRole].designer;}
 function currentChannelScope(){return roleProfiles[currentRole].channel;}
 function currentSubScope(){return roleProfiles[currentRole].sub;}
 function currentTeamDesigners(){return roleProfiles[currentRole].teamDesigners||null;}
+function currentDesignerOptions(scopedOrders){
+  const p=roleProfiles[currentRole];
+  if(p.designer)return [p.designer];
+  if(p.teamDesigners)return p.teamDesigners;
+  const roleGroups={
+    'b2c-ai-harsha':['b2c_ai','b2c_ai_vrinda'],
+    'b2c-aid-bharti':['b2c_aid','b2c_aid_walkin','b2c_aid_dl'],
+    'b2c-pune-rachana':['b2c_pune']
+  }[currentRole];
+  if(roleGroups&&typeof USERS!=='undefined'){
+    return USERS.filter(u=>roleGroups.includes(u.group)&&u.role.indexOf('Designer')>-1).map(u=>u.name);
+  }
+  return [...new Set(scopedOrders.map(o=>o.designer))];
+}
+function currentScopeLabel(){
+  const p=roleProfiles[currentRole];
+  if(p.designer)return 'B2C only - own orders: '+p.designer;
+  if(p.teamDesigners)return (p.sub?p.sub+' ':'')+'B2C only - '+p.teamDesigners.join(', ');
+  if(p.channel==='B2C'&&p.sub)return 'B2C only - '+p.sub+' team orders';
+  if(p.channel==='B2C')return 'B2C only';
+  return '';
+}
 function roleAllowsOrder(o){
   const ds=currentDesigner(),ch=currentChannelScope(),sub=currentSubScope(),team=currentTeamDesigners();
   if(ds&&o.designer!==ds)return false;
@@ -1435,6 +1473,8 @@ function applyRole(role){
     if(!allowed)btn.classList.remove('on');
   });
   document.querySelectorAll('.nav h5').forEach(h=>{h.style.display=p.pages.length<ALL_PAGES.length?'none':'';});
+  if(typeof orPopulateFilters==='function')orPopulateFilters();
+  if(typeof odPopulateFilters==='function')odPopulateFilters();
   applyScopedOrderFilters('or');
   applyScopedOrderFilters('od');
   const active=document.querySelector('.screen.on');
@@ -1450,9 +1490,15 @@ function applyScopedOrderFilters(prefix){
   const ch=document.getElementById(prefix+'-f-channel');
   const sub=document.getElementById(prefix+'-f-sub');
   const ds=document.getElementById(prefix+'-f-designer');
+  const note=document.getElementById(prefix+'-scope-note');
+  const label=currentScopeLabel();
   if(ch){ch.value=p.channel||'all';ch.disabled=!!p.channel;}
   if(sub){sub.style.display=p.channel==='B2C'?'':'none';sub.value=p.sub||'all';sub.disabled=!!p.sub;if(p.channel!=='B2C')sub.value='all';}
   if(ds){ds.value=p.designer||'all';ds.disabled=!!p.designer;}
+  if(note){note.textContent=label;note.style.display=label?'':'none';}
+  if(ch)ch.classList.toggle('scope-hidden',!!p.channel);
+  if(sub)sub.classList.toggle('scope-hidden',!!p.sub||!!p.designer);
+  if(ds)ds.classList.toggle('scope-hidden',!!p.designer);
 }
 
 function navTo(k){document.querySelector('button[data-s='+k+']').click();}
@@ -1969,12 +2015,14 @@ const orRouteOrders=[
 ];
 function orPopulateFilters(){
   const clients=new Set(),projects=new Set(),designers=new Set();
-  orRouteOrders.forEach(o=>{clients.add(o.client);projects.add(o.project);designers.add(o.designer);});
+  const scopedOrders=orRouteOrders.filter(roleAllowsOrder);
+  scopedOrders.forEach(o=>{clients.add(o.client);projects.add(o.project);designers.add(o.designer);});
+  currentDesignerOptions(scopedOrders).forEach(d=>designers.add(d));
   const fillSel=(id,vals,label)=>{document.getElementById(id).innerHTML=`<option value="all">${label}</option>`+[...vals].sort().map(v=>`<option>${v}</option>`).join('');};
-  fillSel('or-f-client',clients,'All clients');
-  fillSel('or-f-designer',designers,'All designers');
+  fillSel('or-f-client',clients,currentScopeLabel()?'All visible clients':'All clients');
+  fillSel('or-f-designer',designers,currentScopeLabel()?'All visible designers':'All designers');
   document.getElementById('or-dl-project').innerHTML=[...projects].sort().map(v=>`<option value="${v}">`).join('');
-  document.getElementById('or-dl-wo').innerHTML=orRouteOrders.map(o=>`<option value="${o.wo}">`).join('');
+  document.getElementById('or-dl-wo').innerHTML=scopedOrders.map(o=>`<option value="${o.wo}">`).join('');
   orFilterUpdate();
 }
 function orChannelChange(){
@@ -2025,12 +2073,14 @@ orPopulateFilters();
 // ---- Order Detail: find-order filter bar (same orRouteOrders master as Order Route & Days) ----
 function odPopulateFilters(){
   const clients=new Set(),projects=new Set(),designers=new Set();
-  orRouteOrders.forEach(o=>{clients.add(o.client);projects.add(o.project);designers.add(o.designer);});
+  const scopedOrders=orRouteOrders.filter(roleAllowsOrder);
+  scopedOrders.forEach(o=>{clients.add(o.client);projects.add(o.project);designers.add(o.designer);});
+  currentDesignerOptions(scopedOrders).forEach(d=>designers.add(d));
   const fillSel=(id,vals,label)=>{document.getElementById(id).innerHTML=`<option value="all">${label}</option>`+[...vals].sort().map(v=>`<option>${v}</option>`).join('');};
-  fillSel('od-f-client',clients,'All clients');
-  fillSel('od-f-designer',designers,'All designers');
+  fillSel('od-f-client',clients,currentScopeLabel()?'All visible clients':'All clients');
+  fillSel('od-f-designer',designers,currentScopeLabel()?'All visible designers':'All designers');
   document.getElementById('od-dl-project').innerHTML=[...projects].sort().map(v=>`<option value="${v}">`).join('');
-  document.getElementById('od-dl-wo').innerHTML=orRouteOrders.map(o=>`<option value="${o.wo}">`).join('');
+  document.getElementById('od-dl-wo').innerHTML=scopedOrders.map(o=>`<option value="${o.wo}">`).join('');
   odFilterUpdate();
 }
 function odChannelChange(){
@@ -2436,6 +2486,26 @@ function showUTab(t){
   document.querySelectorAll('.upanel').forEach(p=>p.classList.remove('on'));
   document.getElementById('ut-'+t).classList.add('on');
 }
+function renderB2CTree(){
+  const chipNames=names=>names.map(n=>'<span class="dchip">'+n+'</span>').join('');
+  const groupChips=g=>USERS.filter(u=>u.group===g&&u.role.indexOf('Designer')>-1).map(u=>'<span class="dchip">'+u.name+'</span>').join('');
+  document.getElementById('u-b2c-tree').innerHTML=
+    '<div class="treecard"><h4>Harsha - AI</h4>'
+    +'<div class="note"><b>Head visibility:</b> all AI B2C orders.</div>'
+    +'<div class="treelevel"><strong>AI direct designers</strong><div class="note">Own-order designer access.</div><div class="dchips">'+groupChips('b2c_ai')+'</div></div>'
+    +'<div class="treelevel"><strong>Vrinda subgroup</strong><div class="note">Vrinda sees only Varun and Nivya orders.</div><div class="dchips">'+chipNames(['Vrinda','Varun','Nivya'])+'</div></div>'
+    +'</div>'
+    +'<div class="treecard"><h4>Bharti - AID</h4>'
+    +'<div class="note"><b>Head visibility:</b> all AID, Retail and Digital Lead B2C orders.</div>'
+    +'<div class="treelevel"><strong>AID direct designers</strong><div class="note">Own-order designer access.</div><div class="dchips">'+groupChips('b2c_aid')+'</div></div>'
+    +'<div class="treelevel"><strong>Sakshi - AID-walkin</strong><div class="note">Sakshi sees only Usha, Aishwarya, Ashmi and Krish orders.</div><div class="dchips">'+chipNames(['Sakshi','Usha','Aishwarya','Ashmi','Krish'])+'</div></div>'
+    +'<div class="treelevel"><strong>AID-DL Manager</strong><div class="note">DL Manager sees only Ravi, Jennifer, Shruti and Siddhesh orders.</div><div class="dchips">'+chipNames(['DL Manager','Ravi','Jennifer','Shruti','Siddhesh'])+'</div></div>'
+    +'</div>'
+    +'<div class="treecard"><h4>Amarkant / Rachana - Pune</h4>'
+    +'<div class="note"><b>Head visibility:</b> Pune B2C team orders.</div>'
+    +'<div class="treelevel"><strong>Pune designers</strong><div class="note">Designers see only their own Pune B2C orders.</div><div class="dchips">'+groupChips('b2c_pune')+'</div></div>'
+    +'</div>';
+}
 function renderOrgRoleMap(){
   const chips=g=>USERS.filter(u=>u.group===g).map(u=>'<span class="dchip">'+u.name+'</span>').join('');
   document.getElementById('ut-map-cards').innerHTML=
@@ -2489,7 +2559,7 @@ function renderAccessMatrix(){
 }
 let usersInit=false;
 function openUsersConfig(){
-  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderOrgRoleMap();renderOrgFloor();renderAccessMatrix();usersInit=true;}
+  if(!usersInit){renderKPIs();populateGroupFilter();renderDirectory();renderOrgRoleMap();renderB2CTree();renderOrgFloor();renderAccessMatrix();usersInit=true;}
   document.getElementById('usersmodal').classList.add('on');
 }
 function closeUsersConfig(){document.getElementById('usersmodal').classList.remove('on');}
