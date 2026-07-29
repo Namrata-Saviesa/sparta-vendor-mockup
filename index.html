@@ -276,6 +276,23 @@ tr.rm-sec .seccount{font-family:var(--body);font-size:10px;font-weight:600;text-
 .treelevel{border-left:3px solid var(--line);padding-left:10px;margin:8px 0 0 4px}
 .treelevel strong{display:block;font-size:12px;margin-bottom:4px}
 .treelevel .note{margin-bottom:5px}
+.revdate{border:1px solid var(--line);border-radius:5px;padding:3px 5px;font-family:var(--mono);font-size:11px;max-width:126px}
+.configline{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 7px}
+.configline label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey)}
+.configline input{width:54px;border:1px solid var(--line);border-radius:5px;padding:4px 5px;font-family:var(--mono);font-size:11px}
+@media(min-width:901px){
+  .topbar{padding:8px 18px}.topbar h1{font-size:22px}.content{padding:12px 16px 28px}
+  #s-dash,#s-rm,#s-po,#s-rej{max-height:calc(100vh - 78px);overflow:hidden}
+  #s-dash .card,#s-rm .card,#s-po .card,#s-rej .card{padding:8px 10px;border-radius:8px}
+  #s-dash .grid,#s-rm .grid,#s-po .grid,#s-rej .grid{gap:8px!important;margin-top:8px!important}
+  #s-dash .kpi .n,#s-rm .kpi .n,#s-po .kpi .n,#s-rej .kpi .n{font-size:25px}
+  #s-dash .kpi .l,#s-rm .kpi .l,#s-po .kpi .l,#s-rej .kpi .l{font-size:8.5px}
+  #s-dash td,#s-dash th,#s-rm td,#s-rm th,#s-po td,#s-po th,#s-rej td,#s-rej th{padding:4px 6px;font-size:10.5px}
+  #s-dash .note,#s-rm .note,#s-po .note,#s-rej .note{font-size:10px}
+  #s-dash .hm .hc,#s-dash .hm .hl{padding:3px 2px;font-size:9px}
+  #s-dash .sqft{height:82px}.sqg .bars{height:62px}
+  #s-rm .card:last-child,#s-po .card:nth-of-type(3){max-height:58vh;overflow:hidden}
+}
 .gate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#14171b;color:#fff;padding:22px;z-index:9999}
 body.locked .gate{display:flex}
 .gate-card{width:min(420px,100%);background:#fff;color:var(--ink);border-radius:10px;padding:26px;border-top:5px solid var(--orange);box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -306,7 +323,8 @@ body.locked .gate{display:flex}
     <div class="rolebox">
       <label for="role-switch">View as</label>
       <select id="role-switch" onchange="applyRole(this.value)">
-        <option value="admin-namrata">Full Admin - Namrata</option>
+        <option value="admin-namrata">PPC Head - Namrata</option>
+        <option value="admin-mangesh">PPC Head - Mangesh</option>
         <option value="ppc-amir">PPC / Planning - Amir</option>
         <option value="designer-rohan">Designer - Ar. Rohan Bhide</option>
         <option value="b2c-ai-harsha">B2C AI - Harsha</option>
@@ -325,7 +343,7 @@ body.locked .gate{display:flex}
     </div>
     <nav class="nav">
       <h5>PPC Engine</h5>
-      <button class="on" data-s="dash"><span class="ic">▦</span>PPC Dashboard</button>
+      <button class="on" data-s="dash"><span class="ic">▦</span>PPC Head Dashboard</button>
       <button data-s="rm"><span class="ic">▤</span>RM Dashboard</button>
       <button data-s="po"><span class="ic">◨</span>PO Dashboard</button>
       <button data-s="rej"><span class="ic">◪</span>Rejection Dashboard</button>
@@ -349,7 +367,7 @@ body.locked .gate{display:flex}
 
   <div class="main">
     <div class="topbar">
-      <div><h1 id="ttl">PPC Dashboard</h1><div class="sub" id="tsub">Live plan · calculated by Sparta engine, not manual entry</div></div>
+      <div><h1 id="ttl">PPC Head Dashboard</h1><div class="sub" id="tsub">Live plan · calculated by Sparta engine, not manual entry</div></div>
       <div class="engine"><span class="dot"></span>Engine recalculated 14:32 · trigger T5 scan @ CNC</div>
     </div>
     <div class="content">
@@ -363,7 +381,7 @@ body.locked .gate{display:flex}
   </div>
   <div class="grid g4">
     <div class="card kpi info"><div class="n">9</div><div class="l">Due today</div></div>
-    <div class="card kpi ok" title="OTIF: orders where Committed date = actual Packing date"><div class="n">82%</div><div class="l">OTIF</div></div>
+    <div class="card kpi ok" title="OTIF: orders where Committed date = actual Packing date"><div class="n">82%</div><div class="l">Overall OTIF</div></div>
     <div class="card kpi watch"><div class="n">22</div><div class="l">Due in next 3 days</div></div>
     <div class="card kpi crit"><div class="n">3</div><div class="l">Critical</div></div>
   </div>
@@ -373,19 +391,23 @@ body.locked .gate{display:flex}
     <div class="card kpi"><div class="n">4</div><div class="l">Misc</div></div>
     <div class="card kpi watch"><div class="n">18</div><div class="l">High priority</div></div>
   </div>
-  <div class="note" style="margin-top:6px">OTIF = orders dispatched with Committed date = actual Packing date (on time, in full). Tatkal = flagged urgent/rush orders. Misc = uncategorised exceptions pending owner assignment.</div>
+  <div class="card" style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <b style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey)">Store-wise OTIF</b>
+    <span class="chip c-ok">AI 84%</span><span class="chip c-watch">AID 78%</span><span class="chip c-ok">Pune 88%</span>
+    <span class="note">OTIF = dispatched on/before committed date and complete at packing.</span>
+  </div>
 
   <div class="grid g2" style="margin-top:14px">
         <div class="card">
       <h3>Expected vs committed — worst gaps</h3>
       <table><thead><tr><th>WO</th><th>Client</th><th>Reference</th><th>Committed</th><th>Revised <span class="revh">✎ PPC Head</span></th><th>Sparta ECD</th><th>Gap</th><th>Status</th></tr></thead>
       <tbody>
-        <tr class="row r-crit"><td class="wo">0134B</td><td>Saakshi Construction</td><td class="ref">REF-1187</td><td class="dt">10 Jul</td><td class="dt"><span class="revd" onclick="editRevised('0134B',this)" title="Manually entered by PPC Head">18 Jul</span></td><td class="dt">18 Jul</td><td><span class="gap neg">−8d</span></td><td><span class="chip c-crit">Critical</span></td></tr>
-        <tr class="row r-late"><td class="wo">0503</td><td>A. R. Hirlekar</td><td class="ref">REF-1142</td><td class="dt">16 Jul</td><td class="dt"><span class="revd" onclick="editRevised('0503',this)" title="Manually entered by PPC Head">20 Jul</span></td><td class="dt">20 Jul</td><td><span class="gap neg">−4d</span></td><td><span class="chip c-late">Delayed</span></td></tr>
-        <tr class="row r-late"><td class="wo">0374</td><td>Priyanshu Gurav</td><td class="ref">REF-1098</td><td class="dt">21 Jul</td><td class="dt"><span class="revd" onclick="editRevised('0374',this)" title="Manually entered by PPC Head">23 Jul</span></td><td class="dt">23 Jul</td><td><span class="gap neg">−2d</span></td><td><span class="chip c-late">Delayed</span></td></tr>
-        <tr class="row r-risk"><td class="wo">0469B</td><td>Premier Adhesive</td><td class="ref">REF-1204</td><td class="dt">21 Jul</td><td class="dt"><span class="revd empty" onclick="editRevised('0469B',this)" title="Manually entered by PPC Head">— set</span></td><td class="dt">20 Jul</td><td><span class="gap zero">+1d</span></td><td><span class="chip c-risk">At Risk</span></td></tr>
-        <tr class="row r-watch"><td class="wo">0428B</td><td>GTM Networks</td><td class="ref">REF-1176</td><td class="dt">22 Jul</td><td class="dt"><span class="revd empty" onclick="editRevised('0428B',this)" title="Manually entered by PPC Head">— set</span></td><td class="dt">20 Jul</td><td><span class="gap pos">+2d</span></td><td><span class="chip c-watch">Watch</span></td></tr>
-        <tr class="row r-ok"><td class="wo">0525</td><td>A. R. Hirlekar</td><td class="ref">REF-1233</td><td class="dt">28 Jul</td><td class="dt"><span class="revd empty" onclick="editRevised('0525',this)" title="Manually entered by PPC Head">— set</span></td><td class="dt">21 Jul</td><td><span class="gap pos">+7d</span></td><td><span class="chip c-ok">On Track</span></td></tr>
+        <tr class="row r-crit"><td class="wo">0134B</td><td>Saakshi Construction</td><td class="ref">REF-1187</td><td class="dt">10 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-18" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">18 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
+        <tr class="row r-late"><td class="wo">0503</td><td>A. R. Hirlekar</td><td class="ref">REF-1142</td><td class="dt">16 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-20" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
+        <tr class="row r-late"><td class="wo">0374</td><td>Priyanshu Gurav</td><td class="ref">REF-1098</td><td class="dt">21 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-23" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">23 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
+        <tr class="row r-risk"><td class="wo">0469B</td><td>Premier Adhesive</td><td class="ref">REF-1204</td><td class="dt">21 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap pos">+1d</span></td><td><span class="chip c-risk">At Risk</span></td></tr>
+        <tr class="row r-watch"><td class="wo">0428B</td><td>GTM Networks</td><td class="ref">REF-1176</td><td class="dt">22 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap pos">+2d</span></td><td><span class="chip c-watch">Watch</span></td></tr>
+        <tr class="row r-ok"><td class="wo">0525</td><td>A. R. Hirlekar</td><td class="ref">REF-1233</td><td class="dt">28 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">21 Jul</td><td><span class="gap pos">+7d</span></td><td><span class="chip c-ok">On Track</span></td></tr>
       </tbody></table>
       <div class="note" style="margin-top:8px"><b>Committed</b> is contractual (never auto-changed). <b>Revised</b> is the PPC Head's manual re-commitment (audit-logged). <b>Sparta ECD</b> is engine-calculated. Click a Revised cell to edit.</div>
     </div>
@@ -424,13 +446,20 @@ body.locked .gate{display:flex}
     </div>
     <div class="card">
       <h3>Bottleneck forecast — next 7 days <span class="chip c-late" id="bn-peak">Peak 118%</span></h3>
+      <div class="configline">
+        <label>Colour ranges editable by Mangesh/Namrata:</label>
+        <span class="note">OK&lt;</span><input id="bn-t-info" type="number" value="60" min="1" max="99" onchange="updateBottleneckBands()">
+        <span class="note">Watch&lt;</span><input id="bn-t-watch" type="number" value="80" min="1" max="99" onchange="updateBottleneckBands()">
+        <span class="note">Risk&lt;</span><input id="bn-t-risk" type="number" value="90" min="1" max="120" onchange="updateBottleneckBands()">
+        <span class="note">Late≥</span><input id="bn-t-late" type="number" value="100" min="1" max="140" onchange="updateBottleneckBands()">
+      </div>
       <div class="hm" id="hm7" style="grid-template-columns:92px repeat(8,1fr) 78px"></div>
       <div class="legend" style="margin-top:6px">
-        <span><i style="background:var(--ok-soft);border:1px solid #bfe3c8"></i>0–60%</span>
-        <span><i style="background:var(--info-soft);border:1px solid #a9cdec"></i>60–80%</span>
-        <span><i style="background:var(--watch-soft);border:1px solid #ecd9a0"></i>80–90%</span>
-        <span><i style="background:var(--risk-soft);border:1px solid #f3b58c"></i>90–100%</span>
-        <span><i style="background:var(--late-soft);border:1px solid #f0b7b7"></i>100%+</span>
+        <span id="bn-legend-ok"><i style="background:var(--ok-soft);border:1px solid #bfe3c8"></i>0–60%</span>
+        <span id="bn-legend-info"><i style="background:var(--info-soft);border:1px solid #a9cdec"></i>60–80%</span>
+        <span id="bn-legend-watch"><i style="background:var(--watch-soft);border:1px solid #ecd9a0"></i>80–90%</span>
+        <span id="bn-legend-risk"><i style="background:var(--risk-soft);border:1px solid #f3b58c"></i>90–100%</span>
+        <span id="bn-legend-late"><i style="background:var(--late-soft);border:1px solid #f0b7b7"></i>100%+</span>
       </div>
       <div class="note" style="margin-top:6px">Load % per station per day from planned inflow (Logic G run forward). Bottleneck migrates from Edge Band to Assembly by Tue 21 — act before it moves. <b>Total for the week</b> sums the 7 working days (700% = fully loaded all week); over 700% turns red.</div>
     </div>
@@ -447,15 +476,18 @@ body.locked .gate{display:flex}
         <select id="pt-vendor" class="btn" style="margin-left:auto;font-size:11px;padding:4px 8px" onchange="ptFilter(this.value)">
           <option value="all">All vendors</option><option>Alfa</option><option>Rupal</option><option>Metis</option><option>VMS</option><option>Icrotone</option><option>Brother</option>
         </select>
+        <select id="pt-status" class="btn" style="font-size:11px;padding:4px 8px" onchange="ptFilter()">
+          <option value="all">All statuses</option><option value="Overdue">Overdue</option><option value="Due today">Due today</option><option value="Upcoming">Upcoming</option>
+        </select>
       </h3>
       <table><thead><tr><th>PO</th><th>Vendor</th><th>Material</th><th>WO</th><th>Due</th><th>Status</th></tr></thead>
       <tbody id="potable">
-        <tr class="row r-late" data-vendor="Rupal"><td class="wo">PO-2507</td><td>Rupal</td><td>Fluted glass (replacement)</td><td class="wo">0374</td><td class="dt">12 Jul</td><td><span class="pochip c-late">Overdue 3d</span></td></tr>
-        <tr class="row r-late" data-vendor="VMS"><td class="wo">PO-2493</td><td>VMS</td><td>PU shutters return leg</td><td class="wo">0503</td><td class="dt">13 Jul</td><td><span class="pochip c-late">Overdue 2d</span></td></tr>
-        <tr class="row r-late" data-vendor="Alfa"><td class="wo">PO-2519</td><td>Alfa</td><td>ALP Taper Profile ×26</td><td class="wo">0469B</td><td class="dt">14 Jul</td><td><span class="pochip c-late">Overdue 1d</span></td></tr>
-        <tr class="row r-risk" data-vendor="Alfa"><td class="wo">PO-2521</td><td>Alfa</td><td>ALP Anodized Black</td><td class="wo">0252A</td><td class="dt">15 Jul</td><td><span class="pochip c-risk">Due today</span></td></tr>
-        <tr class="row r-risk" data-vendor="Metis"><td class="wo">PO-2530</td><td>Metis</td><td>Hanger hooks &amp; clips</td><td class="wo">0407</td><td class="dt">15 Jul</td><td><span class="pochip c-risk">Due today</span></td></tr>
-        <tr class="row" data-vendor="Brother"><td class="wo">PO-2534</td><td>Brother</td><td>Painted glass 6mm</td><td class="wo">0455</td><td class="dt">16 Jul</td><td><span class="pochip c-grey">Tomorrow</span></td></tr>
+        <tr class="row r-late" data-vendor="Rupal" data-status="Overdue"><td class="wo">PO-2507</td><td>Rupal</td><td>Fluted glass (replacement)</td><td class="wo">0374</td><td class="dt">12 Jul</td><td><span class="pochip c-late">Overdue 3d</span></td></tr>
+        <tr class="row r-late" data-vendor="VMS" data-status="Overdue"><td class="wo">PO-2493</td><td>VMS</td><td>PU shutters return leg</td><td class="wo">0503</td><td class="dt">13 Jul</td><td><span class="pochip c-late">Overdue 2d</span></td></tr>
+        <tr class="row r-late" data-vendor="Alfa" data-status="Overdue"><td class="wo">PO-2519</td><td>Alfa</td><td>ALP Taper Profile ×26</td><td class="wo">0469B</td><td class="dt">14 Jul</td><td><span class="pochip c-late">Overdue 1d</span></td></tr>
+        <tr class="row r-risk" data-vendor="Alfa" data-status="Due today"><td class="wo">PO-2521</td><td>Alfa</td><td>ALP Anodized Black</td><td class="wo">0252A</td><td class="dt">15 Jul</td><td><span class="pochip c-risk">Due today</span></td></tr>
+        <tr class="row r-risk" data-vendor="Metis" data-status="Due today"><td class="wo">PO-2530</td><td>Metis</td><td>Hanger hooks &amp; clips</td><td class="wo">0407</td><td class="dt">15 Jul</td><td><span class="pochip c-risk">Due today</span></td></tr>
+        <tr class="row" data-vendor="Brother" data-status="Upcoming"><td class="wo">PO-2534</td><td>Brother</td><td>Painted glass 6mm</td><td class="wo">0455</td><td class="dt">16 Jul</td><td><span class="pochip c-grey">Tomorrow</span></td></tr>
       </tbody></table>
       <div class="note" style="margin-top:6px" id="pt-note">Late PO → engine shifts affected ECDs (Logic I) and this list feeds the 09:00 cron mail to Purchase.</div>
     </div>
@@ -470,13 +502,11 @@ body.locked .gate{display:flex}
     <span class="note" id="rm-note" style="margin-left:auto">Filters live in the column headers below — search or pick a value, they combine. ⬇ XLS on the widget.</span>
   </div>
 
-  <div class="grid g6">
-    <div class="card kpi ok"><div class="n" id="rm-k-stock">4</div><div class="l">In stock / received</div></div>
+  <div class="grid g4">
     <div class="card kpi info"><div class="n" id="rm-k-transit">2</div><div class="l">In transit</div></div>
     <div class="card kpi watch"><div class="n" id="rm-k-po">3</div><div class="l">PO raised</div></div>
     <div class="card kpi late"><div class="n" id="rm-k-short">2</div><div class="l">Shortage</div></div>
     <div class="card kpi crit"><div class="n" id="rm-k-rej">1</div><div class="l">Rejected / rework</div></div>
-    <div class="card kpi"><div class="n" id="rm-k-total">12</div><div class="l">Total RM lines</div></div>
   </div>
 
   <div class="card" style="margin-top:14px">
@@ -497,7 +527,7 @@ body.locked .gate{display:flex}
         <th><input class="thf" id="rm-f-project" list="rm-dl-project" placeholder="Search project…" oninput="rmFilter()"><datalist id="rm-dl-project"></datalist></th>
         <th><select class="thf" id="rm-vendor" onchange="rmFilter()"><option value="all">All vendors</option><option>Alfa</option><option>Rupal</option><option>Metis</option><option>VMS</option><option>Icrotone</option><option>Brother</option></select></th>
         <th><input class="thf" id="rm-f-mat" list="rm-dl-mat" placeholder="Search material…" oninput="rmFilter()"><datalist id="rm-dl-mat"></datalist></th>
-        <th><select class="thf" id="rm-status" onchange="rmFilter()"><option value="all">All statuses</option><option>In stock</option><option>Received</option><option>In transit</option><option>PO raised</option><option>Shortage</option><option>Rejected / rework</option></select></th>
+        <th><select class="thf" id="rm-status" onchange="rmFilter()"><option value="all">All action statuses</option><option>In transit</option><option>PO raised</option><option>Shortage</option><option>Rejected / rework</option></select></th>
       </tr>
     </thead>
     <tbody id="rm-body">
@@ -521,7 +551,7 @@ body.locked .gate{display:flex}
       <tr class="row r-risk" data-vendor="Metis" data-status="In transit" data-channel="B2C-Pune"><td class="wo">0407</td><td><span class="tagC">B2C</span> · Pune</td><td>Saviesa Retail</td><td>Pune Retail — Wardrobe Fittings</td><td>Metis</td><td>Hanger hooks &amp; clips</td><td><span class="chip c-info">In transit</span></td></tr>
       <tr class="row r-ok" data-vendor="Metis" data-status="Received" data-channel="B2C-Pune"><td class="wo">0430A</td><td><span class="tagC">B2C</span> · Pune</td><td>Saviesa Retail</td><td>Pune Retail — Kitchen Handles</td><td>Metis</td><td>Handle SS-304</td><td><span class="chip c-ok">Received</span></td></tr>
     </tbody></table>
-    <div class="note" style="margin-top:8px">Shortage &amp; Rejected lines auto-raise exceptions and shift the order ECD (Logic I). PO-raised lines link to the PO tracker on the PPC Dashboard. Channel is <b>B2B</b> or <b>B2C</b>; B2C splits into three sections — <b>AI</b>, <b>AID</b>, <b>Pune</b> — shown as separate table sections above and filterable individually. <b>Project</b> distinguishes multiple work orders raised by the same client (e.g. a Kitchen order vs a Wardrobe order) and is set at WO creation.</div>
+    <div class="note" style="margin-top:8px">RM Dashboard shows action lines only: In transit, PO raised, Shortage and Rejected / rework. In stock / received lines are intentionally excluded to keep the dashboard focused. Channel is <b>B2B</b> or <b>B2C</b>; B2C splits into <b>AI</b>, <b>AID</b>, <b>Pune</b>.</div>
   </div>
 </section>
 <!-- ============ A3. PO DASHBOARD ============ -->
@@ -1244,7 +1274,7 @@ body.locked .gate{display:flex}
     <div class="card"><h3>Dispatch &amp; OTIF</h3>
       <div class="repcard"><div><b>Order-wise (per WO) report</b><div class="note">Full timeline, route &amp; status for a single WO</div></div><button class="btn">Excel ↓</button></div>
       <div class="repcard"><div><b>Store-wise — next 3 days dispatch report</b><div class="note">Dispatch-ready orders by store, next 3 days</div></div><button class="btn">Excel ↓</button></div>
-      <div class="repcard clickable" onclick="openReport('otif')"><div><b>OTIF trend report</b><div class="note">Overall, B2C and B2B only; current month + Apr-Jun average</div></div><button class="btn" onclick="event.stopPropagation();openReport('otif')">View</button></div>
+      <div class="repcard clickable" onclick="openReport('otif')"><div><b>OTIF trend report</b><div class="note">Overall, B2B, B2C and store-wise AI / AID / Pune; current month + Apr-Jun average</div></div><button class="btn" onclick="event.stopPropagation();openReport('otif')">View</button></div>
     </div>
   </div>
 </section>
@@ -1399,6 +1429,7 @@ rep:['Reports','All exportable: Excel · PDF · API · SAP'],
 scan:['Station Scan — Operator','Start/stop scans, partial qty, rework, hold — feeds every PPC calculation'],
 mast:['Masters & Config','Route, cycle time, capacity, calendars, approvals'],
 cron:['Report Scheduler','Automatic delivery — which report, to which POC, on which schedule']};
+titles.dash[0]='PPC Head Dashboard';
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{
   if(b.style.display==='none')return;
   document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
@@ -1410,10 +1441,12 @@ document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',(
 }));
 
 const ALL_PAGES=['dash','rm','po','rej','plan','proc','oroute','order','load','prio','scan','pack','mast','cron','rep'];
-const PPC_PAGES=['dash','rm','po','rej','plan','proc','oroute','order','load','prio','rep'];
+const PPC_HEAD_PAGES=ALL_PAGES;
+const PPC_PAGES=['rm','po','rej','plan','proc','oroute','order','load','prio','rep'];
 const roleProfiles={
-  'admin-namrata':{name:'Namrata',label:'Full Admin',designer:null,channel:null,pages:ALL_PAGES,hint:'Full admin access: all screens and all B2B/B2C orders.'},
-  'ppc-amir':{name:'Amir',label:'PPC / Planning',designer:null,channel:null,pages:PPC_PAGES,hint:'PPC / Planning access: planning, priority, route, load and reports for all orders.'},
+  'admin-namrata':{name:'Namrata',label:'PPC Head',designer:null,channel:null,pages:PPC_HEAD_PAGES,hint:'PPC Head access: PPC Head Dashboard, all screens and all B2B/B2C orders.'},
+  'admin-mangesh':{name:'Mangesh',label:'PPC Head',designer:null,channel:null,pages:PPC_HEAD_PAGES,hint:'PPC Head access: PPC Head Dashboard, all screens and all B2B/B2C orders.'},
+  'ppc-amir':{name:'Amir',label:'PPC / Planning',designer:null,channel:null,pages:PPC_PAGES,hint:'PPC / Planning access: planning, route, load and reports for all orders. PPC Head Dashboard is visible only to Namrata and Mangesh.'},
   'designer-rohan':{name:'Ar. Rohan Bhide',label:'Designer',designer:'Ar. Rohan Bhide',channel:'B2C',pages:['oroute','order'],hint:'Designer access: B2C only, own orders only, Order Route & Days and Order Detail.'},
   'b2c-ai-harsha':{name:'Harsha',label:'B2C AI Head',designer:null,channel:'B2C',sub:'AI',pages:['oroute','order','rej','rep'],hint:'B2C AI access: AI team B2C orders, order tracking, rejections and reports.'},
   'b2c-ai-vrinda':{name:'Vrinda',label:'B2C AI Manager',designer:null,channel:'B2C',sub:'AI',teamDesigners:['Varun','Nivya'],pages:['oroute','order','rej','rep'],hint:'B2C AI-Vrinda access: only orders for Varun and Nivya.'},
@@ -1528,11 +1561,12 @@ function otPreview(){const st=document.getElementById('ot-st').value;
  document.getElementById('ot-impact').innerHTML='<b>Preview:</b> '+st+' '+label+' on 15 Jul → day capacity 8h→'+nh+'h · load '+base+'%→'+nl+'% · '+impact+' Triggers a full PPC recalculation — capacity changes ripple through every queue, ECD, buffer, risk status, and the day\'s worker/supervisor efficiency figures.';}
 otPreview();
 // ---- shared 5-band load % colour scheme (Bottleneck forecast is the reference; reused by all Station Load widgets) ----
+const loadThresholds={info:60,watch:80,risk:90,late:100};
 function loadBand(v){
-  if(v>=100)return{hc:'b5',row:'late',color:'var(--late)',label:'Bottleneck'};
-  if(v>=90)return{hc:'b4',row:'risk',color:'var(--risk)',label:'Near cap'};
-  if(v>=80)return{hc:'b3',row:'watch',color:'var(--watch)',label:'Watch'};
-  if(v>=60)return{hc:'b2',row:'info',color:'var(--info)',label:'Moderate'};
+  if(v>=loadThresholds.late)return{hc:'b5',row:'late',color:'var(--late)',label:'Bottleneck'};
+  if(v>=loadThresholds.risk)return{hc:'b4',row:'risk',color:'var(--risk)',label:'Near cap'};
+  if(v>=loadThresholds.watch)return{hc:'b3',row:'watch',color:'var(--watch)',label:'Watch'};
+  if(v>=loadThresholds.info)return{hc:'b2',row:'info',color:'var(--info)',label:'Moderate'};
   return{hc:'b1',row:'ok',color:'var(--ok)',label:'OK'};
 }
 // ---- station monthly plan ----
@@ -1691,7 +1725,7 @@ const glines=[
 // ---- 7-day bottleneck heatmap (dashboard) ----
 const hmDays=['','Wed 15','Thu 16','Fri 17','Sat 18','Sun 19','Mon 20','Tue 21','Wed 22'];
 const hmData=[['Edge Band',118,112,105,96,null,88,84,80],['Panel Saw',104,98,92,90,null,80,76,72],['CNC',92,95,101,97,null,85,78,74],['Hot Press',88,82,79,74,null,70,66,63],['Beam Saw',71,76,80,72,null,64,60,58],['Assembly',66,70,74,84,null,90,95,101]];
-(function(){const el=document.getElementById('hm7');if(!el)return;
+function renderBottleneckForecast(){const el=document.getElementById('hm7');if(!el)return;
  let h=hmDays.map((d,i)=>`<div class="hh">${d}${d==='Sun 19'?'<br>HOL':''}</div>`).join('')+'<div class="hh">Week<br>Total</div>';
  let peak=0,peakSt='',peakDay='';
  hmData.forEach(r=>{
@@ -1702,12 +1736,25 @@ const hmData=[['Edge Band',118,112,105,96,null,88,84,80],['Panel Saw',104,98,92,
      sum+=v;
      return `<div class="hc ${loadBand(v).hc}">${v}%</div>`;
    }).join('');
-   const tb=sum>700?'b5':sum>=630?'b4':sum>=525?'b3':'b1';
+   const tb=loadBand(sum/7).hc;
    h+=`<div class="hl">${r[0]}</div>`+cells+`<div class="hc ${tb}" title="7 working days × 100% = 700% basis">${sum}%</div>`;
  });
  el.innerHTML=h;
  const pk=document.getElementById('bn-peak'); if(pk){pk.textContent='Peak '+peak+'% · '+peakSt+' '+peakDay;pk.className='chip '+(peak>=100?'c-late':peak>=90?'c-risk':'c-watch');}
-})();
+}
+function updateBottleneckBands(){
+  loadThresholds.info=parseInt(document.getElementById('bn-t-info').value,10)||60;
+  loadThresholds.watch=parseInt(document.getElementById('bn-t-watch').value,10)||80;
+  loadThresholds.risk=parseInt(document.getElementById('bn-t-risk').value,10)||90;
+  loadThresholds.late=parseInt(document.getElementById('bn-t-late').value,10)||100;
+  document.getElementById('bn-legend-ok').lastChild.textContent='0-'+loadThresholds.info+'%';
+  document.getElementById('bn-legend-info').lastChild.textContent=loadThresholds.info+'-'+loadThresholds.watch+'%';
+  document.getElementById('bn-legend-watch').lastChild.textContent=loadThresholds.watch+'-'+loadThresholds.risk+'%';
+  document.getElementById('bn-legend-risk').lastChild.textContent=loadThresholds.risk+'-'+loadThresholds.late+'%';
+  document.getElementById('bn-legend-late').lastChild.textContent=loadThresholds.late+'%+';
+  renderBottleneckForecast();
+}
+renderBottleneckForecast();
 // ---- SQFT predicted vs actual ----
 (function(){const el=document.getElementById('sqftchart');if(!el)return;
  const wk=[['W1 (1–7)',11000,10700],['W2 (8–15)',11800,10750],['W3 (16–24)',12200,null],['W4 (25–31)',11000,null]];
@@ -1729,6 +1776,28 @@ function editRevised(wo,el){
   // demo only: real app writes to override audit log
 }
 
+// ---- Revised committed date (manually entered by PPC Head) ----
+function parseDashDate(text){
+  const m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const p=(text||'').trim().split(/\s+/); if(p.length<2)return null;
+  return new Date(2026,m[p[1]],parseInt(p[0],10));
+}
+function gapText(days){return days===0?'0d':(days>0?'+'+days+'d':'−'+Math.abs(days)+'d');}
+function updateGapRow(row){
+  const tds=row.querySelectorAll('td');
+  const committed=parseDashDate(tds[3].textContent);
+  const revisedInput=row.querySelector('.revdate');
+  const sparta=parseDashDate(tds[5].textContent);
+  const baseline=revisedInput&&revisedInput.value?new Date(revisedInput.value):committed;
+  if(!baseline||!sparta)return;
+  const days=Math.round((baseline-sparta)/86400000);
+  const gap=row.querySelector('.gap'); if(gap){gap.textContent=gapText(days);gap.className='gap '+(days>0?'pos':days<0?'neg':'zero');}
+  const status=row.querySelector('td:last-child .chip');
+  if(status&&revisedInput&&revisedInput.value&&days===0){status.textContent='Revised aligned';status.className='chip c-watch';}
+}
+function editRevisedDate(input){updateGapRow(input.closest('tr'));}
+document.querySelectorAll('#s-dash .revdate').forEach(input=>updateGapRow(input.closest('tr')));
+
 // ---- Material shortage: per-widget vendor filter ----
 function msFilter(v){let n=0;document.querySelectorAll('#ms-body tr').forEach(r=>{const show=(v==='all'||r.dataset.vendor===v);r.style.display=show?'':'none';if(show)n++;});
   document.getElementById('ms-count').textContent=n+(n===1?' order':' orders');
@@ -1741,10 +1810,20 @@ function ptFilter(v){let n=0,overdue=0;
   document.getElementById('pt-count').textContent=overdue+' overdue';
   document.getElementById('pt-note').textContent=(v==='all'?'Late PO → engine shifts affected ECDs (Logic I) and this list feeds the 09:00 cron mail to Purchase.':'Showing '+n+' PO'+(n===1?'':'s')+' for '+v+' only — engine shifts affected ECDs (Logic I) and this list feeds the 09:00 cron mail to Purchase.');}
 
+function ptFilter(v){let n=0,overdue=0;
+  const vendor=v||document.getElementById('pt-vendor').value;
+  const status=document.getElementById('pt-status').value;
+  document.querySelectorAll('#potable tr').forEach(r=>{const show=(vendor==='all'||r.dataset.vendor===vendor)&&(status==='all'||r.dataset.status===status);r.style.display=show?'':'none';
+    if(show){n++;if(r.dataset.status==='Overdue')overdue++;}});
+  document.getElementById('pt-count').textContent=overdue+' overdue';
+  const scope=(vendor==='all'?'all vendors':vendor)+' / '+(status==='all'?'all statuses':status);
+  document.getElementById('pt-note').textContent='Showing '+n+' PO'+(n===1?'':'s')+' for '+scope+' - engine shifts affected ECDs (Logic I) and this list feeds the 09:00 cron mail to Purchase.';}
+
 // ---- RM Dashboard filters ----
 function rmPopulateDatalists(){
   const wos=new Set(),clients=new Set(),projects=new Set(),mats=new Set();
   document.querySelectorAll('#rm-body tr.row').forEach(r=>{
+    if(['In stock','Received'].includes(r.dataset.status))return;
     const tds=r.querySelectorAll('td');
     wos.add(tds[0].textContent.trim());
     clients.add(tds[2].textContent.trim());
@@ -1763,6 +1842,7 @@ function rmFilter(){
   const secCount={};
   document.querySelectorAll('#rm-body tr[data-channel]').forEach(r=>{
     const tds=r.querySelectorAll('td');
+    const actionable=!['In stock','Received'].includes(r.dataset.status);
     const okWo=(wo===''||tds[0].textContent.toLowerCase().includes(wo));
     const okCl=(cl===''||tds[2].textContent.toLowerCase().includes(cl));
     const okPr=(pr===''||tds[3].textContent.toLowerCase().includes(pr));
@@ -1770,7 +1850,7 @@ function rmFilter(){
     const okV=(ve==='all'||r.dataset.vendor===ve);
     const okS=(st==='all'||r.dataset.status===st);
     const okC=(ch==='all')||(ch==='B2C'&&r.dataset.channel.indexOf('B2C')===0)||(r.dataset.channel===ch);
-    const show=okWo&&okCl&&okPr&&okMat&&okV&&okS&&okC; r.style.display=show?'':'none';
+    const show=actionable&&okWo&&okCl&&okPr&&okMat&&okV&&okS&&okC; r.style.display=show?'':'none';
     if(show)secCount[r.dataset.channel]=(secCount[r.dataset.channel]||0)+1;
   });
   let total=0;
@@ -1789,6 +1869,7 @@ function rmClear(){
   rmFilter();
 }
 rmPopulateDatalists();
+rmFilter();
 document.querySelectorAll('#s-rm .card h3').forEach(h=>{const b=document.createElement('button');b.className='btn xls';b.textContent='⬇ XLS';b.onclick=e=>{e.stopPropagation();alert('Mock: exports "'+h.childNodes[0].textContent.trim()+'" data as .xlsx (API: GET /api/export/rm.xlsx)');};h.appendChild(b);});
 
 // ---- PO Dashboard: monthly value trend chart (vendor filterable, with total) ----
@@ -2152,14 +2233,17 @@ document.getElementById('procmodal').addEventListener('click',e=>{if(e.target.id
 // ---- clickable report previews ----
 const reportData={
   otif:{
-    title:'OTIF trend - Overall / B2C / B2B',
-    note:'Current month vs Apr-Jun average. Store-level AI / AID / Pune OTIF is intentionally not shown.',
-    body:'<div class="warnbox"><b>Report logic:</b> OTIF measures orders dispatched on or before the Committed date and fully completed at Packing. It is published only as Overall, B2C and B2B; AI / AID / Pune store-level OTIF is intentionally excluded.</div>'
+    title:'OTIF trend - Overall / B2B / B2C stores',
+    note:'Current month vs Apr-Jun average, including AI / AID / Pune store-wise OTIF.',
+    body:'<div class="warnbox"><b>Report logic:</b> OTIF measures orders dispatched on or before the Committed date and fully completed at Packing. It is published as Overall, B2B, B2C and B2C store-wise AI / AID / Pune.</div>'
       +'<div class="note" style="margin:8px 0"><b>Formula:</b> <span class="mono">OTIF % = on-time-in-full dispatched orders / total dispatched orders x 100</span>. <b>Apr-Jun avg</b> is the average of Apr, May and Jun, excluding the current partial month. <b>Trend</b> compares Current month against Apr-Jun avg.</div>'
       +'<table><thead><tr><th>Level</th><th>Apr</th><th>May</th><th>Jun</th><th>Apr-Jun avg</th><th>Current month</th><th>Trend</th></tr></thead><tbody>'
       +'<tr class="row r-ok"><td><b>Overall</b></td><td class="mono">76%</td><td class="mono">80%</td><td class="mono">81%</td><td class="mono" style="font-weight:700">79%</td><td class="mono" style="font-weight:700;color:var(--ok)">82%</td><td><span class="trend up">Up +3%</span></td></tr>'
       +'<tr class="row r-watch"><td><b>B2C</b></td><td class="mono">73%</td><td class="mono">75%</td><td class="mono">77%</td><td class="mono" style="font-weight:700">75%</td><td class="mono" style="font-weight:700;color:var(--ok)">78%</td><td><span class="trend up">Up +3%</span></td></tr>'
       +'<tr class="row r-ok"><td><b>B2B</b></td><td class="mono">80%</td><td class="mono">84%</td><td class="mono">85%</td><td class="mono" style="font-weight:700">83%</td><td class="mono" style="font-weight:700;color:var(--ok)">86%</td><td><span class="trend up">Up +3%</span></td></tr>'
+      +'<tr class="row r-ok"><td><b>B2C - AI</b></td><td class="mono">80%</td><td class="mono">83%</td><td class="mono">84%</td><td class="mono" style="font-weight:700">82%</td><td class="mono" style="font-weight:700;color:var(--ok)">84%</td><td><span class="trend up">Up +2%</span></td></tr>'
+      +'<tr class="row r-watch"><td><b>B2C - AID</b></td><td class="mono">72%</td><td class="mono">76%</td><td class="mono">77%</td><td class="mono" style="font-weight:700">75%</td><td class="mono" style="font-weight:700;color:var(--watch)">78%</td><td><span class="trend up">Up +3%</span></td></tr>'
+      +'<tr class="row r-ok"><td><b>B2C - Pune</b></td><td class="mono">84%</td><td class="mono">87%</td><td class="mono">88%</td><td class="mono" style="font-weight:700">86%</td><td class="mono" style="font-weight:700;color:var(--ok)">88%</td><td><span class="trend up">Up +2%</span></td></tr>'
       +'</tbody></table><div class="note" style="margin-top:8px"><b>Columns:</b> Level = reporting bucket; Apr/May/Jun = closed-month OTIF; Apr-Jun avg = stable 3-month baseline; Current month = July month-to-date; Trend = current month movement vs baseline.</div>'
   }
 };
@@ -2531,8 +2615,9 @@ const ACCESS_PAGE_LABELS={
   scan:'Scan',pack:'Packing',mast:'Masters',cron:'Scheduler',rep:'Reports'
 };
 const PAGE_ACCESS_ROLES=[
-  {role:'Full Admin / Management',scope:'Rajesh, Monesh, Mary, Anand, Mangesh, Namrata',pages:ALL_PAGES},
-  {role:'PPC / Planning',scope:'Amir; full admins also inherit this access',pages:PPC_PAGES},
+  {role:'PPC Head',scope:'Namrata and Mangesh only; includes PPC Head Dashboard',pages:PPC_HEAD_PAGES},
+  {role:'Full Admin / Management',scope:'Rajesh, Monesh, Mary, Anand; all pages except PPC Head Dashboard',pages:PPC_PAGES.concat(['scan','pack','mast','cron'])},
+  {role:'PPC / Planning',scope:'Amir; PPC Head Dashboard excluded',pages:PPC_PAGES},
   {role:'B2C AI Head',scope:'Harsha; all AI B2C team orders',pages:['oroute','order','rej','rep']},
   {role:'B2C AI Manager',scope:'Vrinda; Varun and Nivya only',pages:['oroute','order','rej','rep']},
   {role:'B2C AID Head',scope:'Bharti; all AID/Retail/DL B2C team orders',pages:['oroute','order','rej','rep']},
