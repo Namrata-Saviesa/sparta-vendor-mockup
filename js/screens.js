@@ -150,17 +150,81 @@ function parseDashDate(text){
   return new Date(2026,m[p[1]],parseInt(p[0],10));
 }
 function gapText(days){return days===0?'0d':(days>0?'+'+days+'d':'−'+Math.abs(days)+'d');}
+function parseRevisedInputDate(input){return input&&input.value?new Date(input.value+'T00:00:00'):null;}
+function formatDashFullDate(date){
+  if(!date)return 'not set';
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return date.getDate()+' '+months[date.getMonth()]+' '+date.getFullYear();
+}
+function dashboardMailContext(row){
+  const tds=row.querySelectorAll('td');
+  const wo=tds[0].textContent.trim();
+  const revisedInput=row.querySelector('.revdate');
+  const revised=parseRevisedInputDate(revisedInput);
+  const sparta=parseDashDate(tds[5].textContent);
+  const committed=parseDashDate(tds[3].textContent);
+  const contact=(typeof dashboardDesignerContacts!=='undefined'&&dashboardDesignerContacts[wo])||{name:'Assigned designer',email:'designer@saviesahome.com'};
+  const delayDays=revised&&sparta?Math.max(0,Math.round((sparta-revised)/86400000)):0;
+  return {wo,client:tds[1].textContent.trim(),ref:tds[2].textContent.trim(),committed,revised,sparta,contact,delayDays};
+}
+function openDesignerDelayMail(row){
+  const ctx=dashboardMailContext(row);
+  const condition='Trigger condition: Sparta ECD ('+formatDashFullDate(ctx.sparta)+') exceeds Revised date ('+formatDashFullDate(ctx.revised)+') for WO '+ctx.wo+'.';
+  const subject='Sparta ECD breach - WO '+ctx.wo+' / '+ctx.client;
+  const body='Hello '+ctx.contact.name+',\n\n'
+    +'Sparta has recalculated the expected completion date for WO '+ctx.wo+' ('+ctx.client+', '+ctx.ref+').\n\n'
+    +'Current trigger condition:\n'
+    +'- Revised date committed by PPC Head: '+formatDashFullDate(ctx.revised)+'\n'
+    +'- Current Sparta ECD: '+formatDashFullDate(ctx.sparta)+'\n'
+    +'- Breach: '+ctx.delayDays+' day'+(ctx.delayDays===1?'':'s')+' beyond revised date\n\n'
+    +'Please review the design/customer coordination blockers and confirm the recovery action or revised commitment by EOD.\n\n'
+    +'This is an automated Sparta mock mail, generated only when Sparta ECD exceeds the PPC revised date.';
+  document.getElementById('mail-title').textContent='Designer mail - WO '+ctx.wo;
+  document.getElementById('mail-note').textContent=condition;
+  document.getElementById('mail-body').innerHTML=
+    '<div class="warnbox" style="margin:0 0 12px"><b>Condition shown on click:</b> '+condition+'</div>'
+    +'<div class="mailmock">'
+    +'<div class="mailrow"><div class="label">To</div><div class="value">'+ctx.contact.name+' &lt;'+ctx.contact.email+'&gt;</div></div>'
+    +'<div class="mailrow"><div class="label">Cc</div><div class="value">ppc.head@saviesahome.com</div></div>'
+    +'<div class="mailrow"><div class="label">Subject</div><div class="value">'+subject+'</div></div>'
+    +'<div class="mailrow"><div class="label">Body</div><div class="value"><pre>'+body+'</pre></div></div>'
+    +'</div>';
+  document.getElementById('mailmodal').classList.add('on');
+}
+function closeDesignerDelayMail(){document.getElementById('mailmodal').classList.remove('on');}
+document.getElementById('mailmodal').addEventListener('click',e=>{if(e.target.id==='mailmodal')closeDesignerDelayMail();});
 function updateGapRow(row){
   const tds=row.querySelectorAll('td');
   const committed=parseDashDate(tds[3].textContent);
   const revisedInput=row.querySelector('.revdate');
   const sparta=parseDashDate(tds[5].textContent);
-  const baseline=revisedInput&&revisedInput.value?new Date(revisedInput.value):committed;
+  const revised=parseRevisedInputDate(revisedInput);
+  const baseline=revised||committed;
   if(!baseline||!sparta)return;
   const days=Math.round((baseline-sparta)/86400000);
   const gap=row.querySelector('.gap'); if(gap){gap.textContent=gapText(days);gap.className='gap '+(days>0?'pos':days<0?'neg':'zero');}
+  const statusCell=tds[7]; if(statusCell)statusCell.classList.add('statuscell');
   const status=row.querySelector('td:last-child .chip');
-  if(status&&revisedInput&&revisedInput.value&&days===0){status.textContent='Revised aligned';status.className='chip c-watch';}
+  const mailTriggered=!!(revised&&days<0);
+  if(status&&revised){
+    if(mailTriggered){status.textContent='Mail trigger';status.className='chip c-late';}
+    else if(days===0){status.textContent='Revised aligned';status.className='chip c-watch';}
+    else{status.textContent='Revised buffer';status.className='chip c-ok';}
+  }
+  if(statusCell){
+    let mailBtn=statusCell.querySelector('.mail-trigger');
+    if(!mailBtn){
+      mailBtn=document.createElement('button');
+      mailBtn.type='button';
+      mailBtn.className='mail-trigger';
+      mailBtn.textContent='✉';
+      mailBtn.setAttribute('aria-label','View designer delay mail');
+      mailBtn.title='View designer delay mail condition and mock message';
+      mailBtn.onclick=e=>{e.stopPropagation();openDesignerDelayMail(row);};
+      statusCell.appendChild(mailBtn);
+    }
+    mailBtn.hidden=!mailTriggered;
+  }
 }
 function editRevisedDate(input){updateGapRow(input.closest('tr'));}
 

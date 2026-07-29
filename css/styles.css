@@ -76,6 +76,16 @@ tr.r-ok{border-left-color:var(--ok)}tr.r-info{border-left-color:var(--info)}tr.r
 .gap{font-family:var(--mono);font-weight:700;font-size:12px;border-radius:4px;padding:2px 7px}
 .gap.pos{background:var(--ok-soft);color:var(--ok)}.gap.zero{background:var(--watch-soft);color:#9a6b00}.gap.neg{background:var(--late-soft);color:var(--late)}
 .revh{display:inline-block;font-family:var(--body);font-size:9px;font-weight:700;text-transform:none;letter-spacing:0;color:var(--orange);background:var(--orange-soft);border-radius:4px;padding:1px 5px;margin-left:2px}
+.statuscell{white-space:nowrap}
+.mail-trigger{width:24px;height:24px;margin-left:6px;border:1px solid var(--late);background:var(--late-soft);color:var(--late);border-radius:50%;font-size:13px;font-weight:800;line-height:1;vertical-align:middle}
+.mail-trigger:hover{background:#fff;border-color:var(--crit);color:var(--crit)}
+.mail-trigger[hidden]{display:none}
+.mailmock{border:1px solid var(--line);border-radius:9px;background:#fafbf8;overflow:hidden}
+.mailmock .mailrow{display:grid;grid-template-columns:82px 1fr;border-bottom:1px solid #eceee9}
+.mailmock .mailrow:last-child{border-bottom:0}
+.mailmock .label{background:#f2f3ef;color:var(--grey);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:8px 10px}
+.mailmock .value{padding:8px 10px;font-size:12px}
+.mailmock pre{margin:0;white-space:pre-wrap;font-family:var(--body);font-size:12px;line-height:1.5}
 tr.filter-row th{padding:5px 7px 8px;border-bottom:2px solid var(--line);background:#fafbf8}
 .thf{width:100%;box-sizing:border-box;font-family:var(--body);font-size:11px;font-weight:400;text-transform:none;letter-spacing:normal;padding:4px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--ink)}
 .thf::placeholder{color:#b7bcc2;font-weight:400}

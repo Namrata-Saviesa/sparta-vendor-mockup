@@ -147,6 +147,14 @@ const orRouteOrders=[
   {wo:'0503',client:'A. R. Hirlekar',project:'Hirlekar Residence — Interiors',channel:'B2C',sub:'AID',designer:'Ar. Neha Kulkarni'},
   {wo:'0134B',client:'Saakshi Construction',project:'Kitchens Flat 703–901',channel:'B2B',sub:'',designer:'Ar. Deepak Shah'}
 ];
+const dashboardDesignerContacts={
+  '0134B':{name:'Ar. Deepak Shah',email:'deepak.shah@saviesahome.com'},
+  '0374':{name:'Ar. Rohan Bhide',email:'rohan.bhide@saviesahome.com'},
+  '0428B':{name:'Ar. Priya Menon',email:'priya.menon@saviesahome.com'},
+  '0469B':{name:'Ar. Kabra Designer',email:'kabra.designer@saviesahome.com'},
+  '0503':{name:'Ar. Neha Kulkarni',email:'neha.kulkarni@saviesahome.com'},
+  '0525':{name:'Ar. Neha Kulkarni',email:'neha.kulkarni@saviesahome.com'}
+};
 const dlBase={'Edge Band':112,'Panel Saw':98,'CNC':93,'Hot Press':82,'Beam Saw':72,'PRF Cutting':62,'Assembly':70,'Cleaning':50,'Packing':46};
 const masterData={
   calendar:{title:'Working & Holiday Calendar', note:'Shift pattern and the holiday list every date-calculation in the app respects — Sparta ECDs, machine-day plans and CPM all skip these dates.',

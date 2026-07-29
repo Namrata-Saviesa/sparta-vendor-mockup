@@ -100,7 +100,7 @@
       <tbody>
         <tr class="row r-crit"><td class="wo">0134B</td><td>Saakshi Construction</td><td class="ref">REF-1187</td><td class="dt">10 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-18" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">18 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
         <tr class="row r-late"><td class="wo">0503</td><td>A. R. Hirlekar</td><td class="ref">REF-1142</td><td class="dt">16 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-20" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
-        <tr class="row r-late"><td class="wo">0374</td><td>Priyanshu Gurav</td><td class="ref">REF-1098</td><td class="dt">21 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-23" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">23 Jul</td><td><span class="gap zero">0d</span></td><td><span class="chip c-watch">Revised aligned</span></td></tr>
+        <tr class="row r-late"><td class="wo">0374</td><td>Priyanshu Gurav</td><td class="ref">REF-1098</td><td class="dt">21 Jul</td><td class="dt"><input class="revdate" type="date" value="2026-07-22" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">23 Jul</td><td><span class="gap neg">-1d</span></td><td><span class="chip c-late">Mail trigger</span></td></tr>
         <tr class="row r-risk"><td class="wo">0469B</td><td>Premier Adhesive</td><td class="ref">REF-1204</td><td class="dt">21 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap pos">+1d</span></td><td><span class="chip c-risk">At Risk</span></td></tr>
         <tr class="row r-watch"><td class="wo">0428B</td><td>GTM Networks</td><td class="ref">REF-1176</td><td class="dt">22 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">20 Jul</td><td><span class="gap pos">+2d</span></td><td><span class="chip c-watch">Watch</span></td></tr>
         <tr class="row r-ok"><td class="wo">0525</td><td>A. R. Hirlekar</td><td class="ref">REF-1233</td><td class="dt">28 Jul</td><td class="dt"><input class="revdate" type="date" onchange="editRevisedDate(this)" title="Manually entered by PPC Head"></td><td class="dt">21 Jul</td><td><span class="gap pos">+7d</span></td><td><span class="chip c-ok">On Track</span></td></tr>
@@ -1023,6 +1023,19 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
       <button class="btn" onclick="closeReport()">Close</button>
       <button class="btn primary" onclick="alert('Mockup: downloads this report as Excel with the same filters and columns.')">Excel ↓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Designer delay mail modal -->
+<div class="modal-bg" id="mailmodal">
+  <div class="modal wide">
+    <h2 id="mail-title">Designer Mail</h2>
+    <div class="note" id="mail-note" style="margin-bottom:12px"></div>
+    <div id="mail-body"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button class="btn" onclick="closeDesignerDelayMail()">Close</button>
+      <button class="btn primary" onclick="alert('Mockup: designer mail queued by Sparta trigger and audit-logged.')">Queue mock mail</button>
     </div>
   </div>
 </div>
