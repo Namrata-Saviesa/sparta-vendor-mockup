@@ -280,18 +280,32 @@ tr.rm-sec .seccount{font-family:var(--body);font-size:10px;font-weight:600;text-
 .configline{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 7px}
 .configline label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey)}
 .configline input{width:54px;border:1px solid var(--line);border-radius:5px;padding:4px 5px;font-family:var(--mono);font-size:11px}
+.configline .protect-toggle{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--grey);text-transform:uppercase}
+.configline .protect-toggle input{width:auto}
 @media(min-width:901px){
   .topbar{padding:8px 18px}.topbar h1{font-size:22px}.content{padding:12px 16px 28px}
-  #s-dash,#s-rm,#s-po,#s-rej{max-height:calc(100vh - 78px);overflow:hidden}
+  #s-dash,#s-rm,#s-po,#s-rej{max-width:100%;overflow-x:hidden}
   #s-dash .card,#s-rm .card,#s-po .card,#s-rej .card{padding:8px 10px;border-radius:8px}
   #s-dash .grid,#s-rm .grid,#s-po .grid,#s-rej .grid{gap:8px!important;margin-top:8px!important}
+  #s-dash .g2,#s-rm .g2,#s-po .g2,#s-rej .g2{grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr)}
+  #s-dash .g4,#s-rm .g4,#s-po .g4,#s-rej .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #s-dash .card,#s-rm .card,#s-po .card,#s-rej .card{min-width:0}
   #s-dash .kpi .n,#s-rm .kpi .n,#s-po .kpi .n,#s-rej .kpi .n{font-size:25px}
   #s-dash .kpi .l,#s-rm .kpi .l,#s-po .kpi .l,#s-rej .kpi .l{font-size:8.5px}
-  #s-dash td,#s-dash th,#s-rm td,#s-rm th,#s-po td,#s-po th,#s-rej td,#s-rej th{padding:4px 6px;font-size:10.5px}
+  #s-dash table,#s-rm table,#s-po table,#s-rej table{table-layout:fixed}
+  #s-dash td,#s-dash th,#s-rm td,#s-rm th,#s-po td,#s-po th,#s-rej td,#s-rej th{padding:4px 5px;font-size:10.5px;white-space:normal;overflow-wrap:anywhere}
+  #s-dash .dt,#s-rm .dt,#s-po .dt,#s-rej .dt,#s-dash .wo,#s-rm .wo,#s-po .wo,#s-rej .wo{white-space:normal}
+  #s-dash .chip,#s-rm .chip,#s-po .chip,#s-rej .chip,#s-dash .pochip,#s-rm .pochip,#s-po .pochip,#s-rej .pochip{white-space:normal;line-height:1.2}
+  #s-dash .revdate{width:100%;min-width:0;font-size:10px;padding:3px}
   #s-dash .note,#s-rm .note,#s-po .note,#s-rej .note{font-size:10px}
   #s-dash .hm .hc,#s-dash .hm .hl{padding:3px 2px;font-size:9px}
-  #s-dash .sqft{height:82px}.sqg .bars{height:62px}
-  #s-rm .card:last-child,#s-po .card:nth-of-type(3){max-height:58vh;overflow:hidden}
+  #sqftchart{height:130px}
+  #sqftchart .bars{height:100px}
+  #sqftchart .b{width:18px}
+}
+@media(min-width:901px) and (max-width:1350px){
+  #s-dash .g2,#s-rm .g2,#s-po .g2,#s-rej .g2{grid-template-columns:1fr}
+  #s-dash .g4,#s-rm .g4,#s-po .g4,#s-rej .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 .gate{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#14171b;color:#fff;padding:22px;z-index:9999}
 body.locked .gate{display:flex}
@@ -391,12 +405,6 @@ body.locked .gate{display:flex}
     <div class="card kpi"><div class="n">4</div><div class="l">Misc</div></div>
     <div class="card kpi watch"><div class="n">18</div><div class="l">High priority</div></div>
   </div>
-  <div class="card" style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <b style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey)">Store-wise OTIF</b>
-    <span class="chip c-ok">AI 84%</span><span class="chip c-watch">AID 78%</span><span class="chip c-ok">Pune 88%</span>
-    <span class="note">OTIF = dispatched on/before committed date and complete at packing.</span>
-  </div>
-
   <div class="grid g2" style="margin-top:14px">
         <div class="card">
       <h3>Expected vs committed — worst gaps</h3>
@@ -447,10 +455,11 @@ body.locked .gate{display:flex}
     <div class="card">
       <h3>Bottleneck forecast — next 7 days <span class="chip c-late" id="bn-peak">Peak 118%</span></h3>
       <div class="configline">
-        <label>Colour ranges editable by Mangesh/Namrata:</label>
-        <span class="note">OK&lt;</span><input id="bn-t-info" type="number" value="60" min="1" max="99" onchange="updateBottleneckBands()">
-        <span class="note">Watch&lt;</span><input id="bn-t-watch" type="number" value="80" min="1" max="99" onchange="updateBottleneckBands()">
-        <span class="note">Risk&lt;</span><input id="bn-t-risk" type="number" value="90" min="1" max="120" onchange="updateBottleneckBands()">
+        <label>Colour ranges:</label>
+        <label class="protect-toggle"><input id="bn-protected" type="checkbox" checked onchange="toggleBottleneckProtection()"> Protected</label>
+        <span class="note">OK&lt;</span><input class="bn-threshold" id="bn-t-info" type="number" value="60" min="1" max="99" onchange="updateBottleneckBands()">
+        <span class="note">Watch&lt;</span><input class="bn-threshold" id="bn-t-watch" type="number" value="80" min="1" max="99" onchange="updateBottleneckBands()">
+        <span class="note">Risk&lt;</span><input class="bn-threshold" id="bn-t-risk" type="number" value="90" min="1" max="120" onchange="updateBottleneckBands()">
         <span class="note">Late≥</span><input id="bn-t-late" type="number" value="100" min="1" max="140" onchange="updateBottleneckBands()">
       </div>
       <div class="hm" id="hm7" style="grid-template-columns:92px repeat(8,1fr) 78px"></div>
@@ -1743,6 +1752,7 @@ function renderBottleneckForecast(){const el=document.getElementById('hm7');if(!
  const pk=document.getElementById('bn-peak'); if(pk){pk.textContent='Peak '+peak+'% · '+peakSt+' '+peakDay;pk.className='chip '+(peak>=100?'c-late':peak>=90?'c-risk':'c-watch');}
 }
 function updateBottleneckBands(){
+  if(document.getElementById('bn-protected')&&document.getElementById('bn-protected').checked)return;
   loadThresholds.info=parseInt(document.getElementById('bn-t-info').value,10)||60;
   loadThresholds.watch=parseInt(document.getElementById('bn-t-watch').value,10)||80;
   loadThresholds.risk=parseInt(document.getElementById('bn-t-risk').value,10)||90;
@@ -1754,6 +1764,11 @@ function updateBottleneckBands(){
   document.getElementById('bn-legend-late').lastChild.textContent=loadThresholds.late+'%+';
   renderBottleneckForecast();
 }
+function toggleBottleneckProtection(){
+  const locked=document.getElementById('bn-protected').checked;
+  ['bn-t-info','bn-t-watch','bn-t-risk','bn-t-late'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=locked;});
+}
+toggleBottleneckProtection();
 renderBottleneckForecast();
 // ---- SQFT predicted vs actual ----
 (function(){const el=document.getElementById('sqftchart');if(!el)return;
